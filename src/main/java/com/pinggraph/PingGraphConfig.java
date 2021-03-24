@@ -12,9 +12,6 @@ import java.awt.Color;
 public interface PingGraphConfig extends Config
 {
 
-	@Range(
-			min = 120
-	)
 	@ConfigItem(
 			position = 0,
 			keyName = "graphWidth",
@@ -26,9 +23,6 @@ public interface PingGraphConfig extends Config
 		return 170;
 	}
 
-	@Range(
-			min = 35
-	)
 	@ConfigItem(
 			position = 1,
 			keyName = "graphHeight",
@@ -83,5 +77,25 @@ public interface PingGraphConfig extends Config
 	)
 	default Color graphBorderColor() {
 		return new Color(0, 0,  0, 70);
+	}
+
+    @ConfigItem(
+            position = 6,
+            keyName = "toggleLineOnly",
+            name = "Graph Line only",
+            description = "Changes the plugin to only show a line"
+    )
+    default boolean toggleLineOnly() {
+        return false;
+    }
+
+	@ConfigItem(
+			position = 7,
+			keyName = "toggleBehind",
+			name = "Hide Behind interfaces",
+			description = "Hides graph behind interfaces i.e bank and map"
+	)
+	default boolean toggleBehind() {
+		return false;
 	}
 }

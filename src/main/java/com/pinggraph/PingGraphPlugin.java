@@ -18,6 +18,7 @@ import net.runelite.client.game.WorldService;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.worldhopper.ping.Ping;
+import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ExecutorServiceExceptionLogger;
 import net.runelite.http.api.worlds.World;
@@ -56,6 +57,9 @@ public class PingGraphPlugin extends Plugin
 
 	@Getter
 	private int maxPing = -1;
+
+	@Getter
+	private int minPing = Integer.MAX_VALUE;
 
 	private ScheduledExecutorService pingExecutorService;
 
@@ -106,9 +110,13 @@ public class PingGraphPlugin extends Plugin
 		pingList.add(currentPing);
 		pingList.remove();// remove the first ping
 		maxPing = -1;
-		for (int tempMax: pingList) {
-			if(maxPing < tempMax)
-				maxPing = tempMax;
+		minPing = Integer.MAX_VALUE;
+
+		for (int ping: pingList) {
+			if(maxPing < ping)
+				maxPing = ping;
+			if(minPing > ping)
+				minPing = ping;
 		}
 	}
 }

@@ -35,9 +35,8 @@ public class PingGraphOverlay extends OverlayPanel {
         this.client = client;
         this.pingGraphPlugin = pingGraphPlugin;
         this.pingGraphConfig = pingGraphConfig;
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        //setLayer(OverlayLayer.ABOVE_SCENE);
         setPosition(OverlayPosition.BOTTOM_LEFT);
-
     }
 
     LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity() {
@@ -45,79 +44,138 @@ public class PingGraphOverlay extends OverlayPanel {
         public Dimension render(Graphics2D graphics) {
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
 
+            if(pingGraphConfig.toggleBehind()){
+                setLayer(OverlayLayer.ABOVE_SCENE);
+            }
+            else
+            {
+                setLayer(OverlayLayer.ABOVE_WIDGETS);
+            }
+
             int overlayWidth = pingGraphConfig.graphWidth();
             int overlayHeight = pingGraphConfig.graphHeight();
 
             int width = overlayWidth - marginGraphWidth * 2;
             int height = overlayHeight - marginGraphHeight * 2;
 
-            //background rect
-            graphics.setColor(pingGraphConfig.graphBackgroundColor());
-            graphics.fillRect(0, 0, overlayWidth, overlayHeight);
-
-            //overlay border box
-            graphics.setColor(pingGraphConfig.graphBorderColor());
-            graphics.drawRect(0, 0, overlayWidth, overlayHeight);                //outside border
-            graphics.drawRect(marginGraphWidth-1, marginGraphHeight+1, width, height);//inside border
-
             int oldX = -1;
             int oldY = -1;
-            int currPing = pingGraphPlugin.getCurrentPing();
 
-            // round maxPing up to nearest 50ms
-            int maxPing = (int)(Math.ceil((double)pingGraphPlugin.getMaxPing() / round) * round);
+            int maxPing = pingGraphPlugin.getMaxPing();
 
-            if(maxPing <= 0) {
+            if (maxPing <= 0) {
                 // change maxPing to 100, prevents div by 0 incase of error
                 maxPing = 100;
             }
 
-            if((maxPing - pingGraphPlugin.getMaxPing()) <= (0.2 * maxPing)) {
-                // increase the max ping to move the graph away from the top
-                maxPing += round;
+            if(!pingGraphConfig.toggleLineOnly()) {
+
+                //background rect
+                graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                graphics.fillRect(0, 0, overlayWidth, overlayHeight);
+
+                //overlay border box
+                graphics.setColor(pingGraphConfig.graphBorderColor());
+                graphics.drawRect(0, 0, overlayWidth, overlayHeight);         //outside border
+
+                //inside border
+                graphics.drawRect(marginGraphWidth - 1, marginGraphHeight + 1, width, height);
+
+                int currPing = pingGraphPlugin.getCurrentPing();
+
+                // round maxPing up to nearest 50ms
+                maxPing = (int) (Math.ceil((double) pingGraphPlugin.getMaxPing() / round) * round);
+
+                if ((maxPing - pingGraphPlugin.getMaxPing()) <= (0.2 * maxPing)) {
+                    // increase the max ping to move the graph away from the top
+                    maxPing += round;
+                }
+
+                //drawing line graph
+                graphics.setColor(pingGraphConfig.graphLineColor());
+                for (int x = 0; x < pingGraphPlugin.getPingList().size(); x++) {
+
+                    int y = pingGraphPlugin.getPingList().get(x);
+
+                    // change a "timed out" to spike rather than drop
+                    if (y < 0) {
+                        y = maxPing - 1;
+                    }
+
+                    //scale the y values between 0 and max ping
+                    y = height - (height * y / maxPing) + marginGraphHeight;
+
+                    //scale the x values between to graph
+                    int tempX = width * x / 100 + marginGraphWidth;
+
+                    if (y >= 0) {
+                        graphics.drawLine(tempX, y, tempX, y);
+                    }
+
+                    if (oldX != -1 && y >= 0) {
+                        graphics.drawLine(oldX, oldY, tempX, y);
+                    }
+                    oldX = tempX;
+                    oldY = y;
+                }
+
+                graphics.setColor(pingGraphConfig.graphTextColor());
+                String temp = "Latency: " + currPing + "ms";
+                if (currPing < 0) temp = "Latency: Timed out";
+                graphics.drawString(temp, marginGraphWidth, marginGraphHeight - 1); //current Ping
+
+                //int strWidth = graphics.getFontMetrics().stringWidth("0ms");
+                //graphics.drawString("0ms", overlayWidth - strWidth, overlayHeight); //0
+
+                temp = "Max: " + pingGraphPlugin.getMaxPing() + "ms";
+                int strWidth = graphics.getFontMetrics().stringWidth(temp);
+                graphics.drawString(temp, overlayWidth - strWidth - marginGraphWidth, marginGraphHeight - 1);//Max Ping
+
+                //Fixed runelite border - no idea why it works
+                return new Dimension(overlayWidth - 8, overlayHeight - 8);
+            }
+            else
+            {
+
+                //background rect
+                graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                graphics.fillRect(0, 0, width, height);
+
+                //overlay border box
+                graphics.setColor(pingGraphConfig.graphBorderColor());
+                graphics.drawRect(0, 0, width-1, height-1);       //outside border
+
+                //drawing line graph
+                graphics.setColor(pingGraphConfig.graphLineColor());
+                for (int x = 0; x < pingGraphPlugin.getPingList().size(); x++) {
+
+                    int y = pingGraphPlugin.getPingList().get(x);
+
+                    // change a "timed out" to spike rather than drop
+                    if (y < 0) {
+                        y = maxPing - 1;
+                    }
+
+                    //scale the y values between 0 and max ping
+                    y = height - (height * y / maxPing);
+
+                    //scale the x values between to graph
+                    int tempX = width * x / 100;
+
+                    if (y >= 0) {
+                        graphics.drawLine(tempX, y, tempX, y);
+                    }
+
+                    if (oldX != -1 && y >= 0) {
+                        graphics.drawLine(oldX, oldY, tempX, y);
+                    }
+                    oldX = tempX;
+                    oldY = y;
+                }
+                return new Dimension(width - 8, height - 8);
             }
 
-            //drawing line graph
-            graphics.setColor(pingGraphConfig.graphLineColor());
-            for (int x = 0; x < pingGraphPlugin.getPingList().size(); x++) {
 
-                int y = pingGraphPlugin.getPingList().get(x);
-
-                // change a "timed out" to spike rather than drop
-                if(y < 0){
-                    y = maxPing - 1;
-                }
-
-                //scale the y values between 0 and max ping
-                y = height - (height * y / maxPing) + marginGraphHeight;
-
-                //scale the x values between to graph
-                int tempX = width * x / 100 + marginGraphWidth;
-
-                if (y >= 0) {
-                    graphics.drawLine(tempX, y, tempX, y);
-                }
-
-                if (oldX != -1 && y >= 0) {
-                    graphics.drawLine(oldX, oldY, tempX, y);
-                }
-                oldX = tempX;
-                oldY = y;
-            }
-
-            graphics.setColor(pingGraphConfig.graphTextColor());
-            String temp = "Latency: " + currPing + "ms";
-            if(currPing < 0) temp = "Latency: Timed out";
-            graphics.drawString(temp, marginGraphWidth, marginGraphHeight-1); //current Ping
-
-            int strWidth = graphics.getFontMetrics().stringWidth("0ms");
-            graphics.drawString("0ms",overlayWidth - strWidth, overlayHeight); //0
-
-            strWidth = graphics.getFontMetrics().stringWidth(maxPing + "ms");
-            graphics.drawString(maxPing + "ms",overlayWidth - strWidth, marginGraphHeight-1);//Max Ping
-
-            //Fixed runelite border - no idea why it works
-            return new Dimension(overlayWidth - 8, overlayHeight - 8);
         }
 
         @Override
