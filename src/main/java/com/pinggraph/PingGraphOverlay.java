@@ -2,16 +2,17 @@ package com.pinggraph;
 
 import java.awt.Color;
 import java.awt.Dimension;
+
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import javax.inject.Inject;
+
 import net.runelite.api.Client;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.OverlayPriority;
 import net.runelite.client.ui.overlay.components.LayoutableRenderableEntity;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,15 +35,14 @@ public class PingGraphOverlay extends OverlayPanel {
         this.client = client;
         this.pingGraphPlugin = pingGraphPlugin;
         this.pingGraphConfig = pingGraphConfig;
-        this.setLayer(OverlayLayer.ABOVE_SCENE);
-        this.setPosition(OverlayPosition.BOTTOM_LEFT);
-        this.setDynamicFont(true);
+        setLayer(OverlayLayer.ABOVE_SCENE);
+        setPosition(OverlayPosition.BOTTOM_LEFT);
+
     }
 
     LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity() {
         @Override
         public Dimension render(Graphics2D graphics) {
-
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
 
             int overlayWidth = pingGraphConfig.graphWidth();
@@ -134,6 +134,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
     @Override
     public Dimension render(Graphics2D graphics) {
+        panelComponent.render(graphics);
         panelComponent.getChildren().add(graphEntity);
         panelComponent.setBackgroundColor(new Color(0, 0, 0, 0));
         return super.render(graphics);
