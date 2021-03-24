@@ -4,12 +4,17 @@ import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
 
 import java.awt.Color;
 
 @ConfigGroup("pinggraph")
 public interface PingGraphConfig extends Config
 {
+
+	@Range(
+			min = 120
+	)
 	@ConfigItem(
 			position = 0,
 			keyName = "graphWidth",
@@ -21,6 +26,9 @@ public interface PingGraphConfig extends Config
 		return 170;
 	}
 
+	@Range(
+			min = 35
+	)
 	@ConfigItem(
 			position = 1,
 			keyName = "graphHeight",

@@ -58,7 +58,7 @@ public class PingGraphOverlay extends OverlayPanel {
             //overlay border box
             graphics.setColor(pingGraphConfig.graphBorderColor());
             graphics.drawRect(0, 0, overlayWidth, overlayHeight);                //outside border
-            graphics.drawRect(marginGraphWidth-1, marginGraphHeight, width, height);//inside border
+            graphics.drawRect(marginGraphWidth-1, marginGraphHeight+1, width, height);//inside border
 
             int oldX = -1;
             int oldY = -1;
@@ -83,6 +83,11 @@ public class PingGraphOverlay extends OverlayPanel {
 
                 int y = pingGraphPlugin.getPingList().get(x);
 
+                // change a "timed out" to spike rather than drop
+                if(y < 0){
+                    y = maxPing - 1;
+                }
+
                 //scale the y values between 0 and max ping
                 y = height - (height * y / maxPing) + marginGraphHeight;
 
@@ -101,15 +106,15 @@ public class PingGraphOverlay extends OverlayPanel {
             }
 
             graphics.setColor(pingGraphConfig.graphTextColor());
-            String temp = currPing + "ms";
-            if(currPing < 0) temp = "Timed out";
-            graphics.drawString("Latency: " + currPing + "ms", marginGraphWidth, marginGraphHeight); //current Ping
+            String temp = "Latency: " + currPing + "ms";
+            if(currPing < 0) temp = "Latency: Timed out";
+            graphics.drawString(temp, marginGraphWidth, marginGraphHeight-1); //current Ping
 
             int strWidth = graphics.getFontMetrics().stringWidth("0ms");
             graphics.drawString("0ms",overlayWidth - strWidth, overlayHeight); //0
 
             strWidth = graphics.getFontMetrics().stringWidth(maxPing + "ms");
-            graphics.drawString(maxPing + "ms",overlayWidth - strWidth, marginGraphHeight);// Max Ping
+            graphics.drawString(maxPing + "ms",overlayWidth - strWidth, marginGraphHeight-1);//Max Ping
 
             //Fixed runelite border - no idea why it works
             return new Dimension(overlayWidth - 8, overlayHeight - 8);
