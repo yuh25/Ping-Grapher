@@ -69,11 +69,11 @@ public interface PingGraphConfig extends Config
 	@Alpha
 	@ConfigItem(
 			position = 5,
-			keyName = "graphBoarderColor",
-			name = "Boarder Color",
-			description = "The background color of the graph."
+			keyName = "graphBorderColor",
+			name = "Border Color",
+			description = "The border color of the plugin."
 	)
-	default Color graphBoarderColor() {
+	default Color graphBorderColor() {
 		return new Color(0, 0,  0, 70);
 	}
 }
