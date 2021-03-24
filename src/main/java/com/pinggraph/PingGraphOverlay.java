@@ -36,6 +36,7 @@ public class PingGraphOverlay extends OverlayPanel {
         this.pingGraphConfig = pingGraphConfig;
         this.setLayer(OverlayLayer.ABOVE_SCENE);
         this.setPosition(OverlayPosition.BOTTOM_LEFT);
+        this.setDynamicFont(true);
     }
 
     LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity() {
@@ -44,11 +45,11 @@ public class PingGraphOverlay extends OverlayPanel {
 
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
 
-            int width = pingGraphConfig.graphWidth();
-            int height = pingGraphConfig.graphHeight();
+            int overlayWidth = pingGraphConfig.graphWidth();
+            int overlayHeight = pingGraphConfig.graphHeight();
 
-            int overlayWidth = width + marginGraphWidth * 2;
-            int overlayHeight = height + marginGraphHeight * 2;
+            int width = overlayWidth - marginGraphWidth * 2;
+            int height = overlayHeight - marginGraphHeight * 2;
 
             //background rect
             graphics.setColor(pingGraphConfig.graphBackgroundColor());
@@ -56,8 +57,8 @@ public class PingGraphOverlay extends OverlayPanel {
 
             //overlay border box
             graphics.setColor(pingGraphConfig.graphBorderColor());
-            graphics.drawRect(0, 0, overlayWidth, overlayHeight);                     //outside border
-            graphics.drawRect(marginGraphWidth-1, marginGraphHeight, width, height);    //inside boarder
+            graphics.drawRect(0, 0, overlayWidth, overlayHeight);                //outside border
+            graphics.drawRect(marginGraphWidth-1, marginGraphHeight, width, height);//inside border
 
             int oldX = -1;
             int oldY = -1;
@@ -81,15 +82,19 @@ public class PingGraphOverlay extends OverlayPanel {
             for (int x = 0; x < pingGraphPlugin.getPingList().size(); x++) {
 
                 int y = pingGraphPlugin.getPingList().get(x);
-                y = height - (height * y / maxPing); // scale the y values between 0 and max ping
-                int tempX = width * x / 100;//100 - number of cells
+
+                //scale the y values between 0 and max ping
+                y = height - (height * y / maxPing) + marginGraphHeight;
+
+                //scale the x values between to graph
+                int tempX = width * x / 100 + marginGraphWidth;
 
                 if (y >= 0) {
-                    graphics.drawLine(marginGraphWidth + tempX, marginGraphHeight + y, marginGraphWidth + tempX, marginGraphHeight + y);
+                    graphics.drawLine(tempX, y, tempX, y);
                 }
 
                 if (oldX != -1 && y >= 0) {
-                    graphics.drawLine(marginGraphWidth + oldX, marginGraphHeight + oldY, marginGraphWidth + tempX, marginGraphHeight + y);
+                    graphics.drawLine(oldX, oldY, tempX, y);
                 }
                 oldX = tempX;
                 oldY = y;
@@ -106,7 +111,8 @@ public class PingGraphOverlay extends OverlayPanel {
             strWidth = graphics.getFontMetrics().stringWidth(maxPing + "ms");
             graphics.drawString(maxPing + "ms",overlayWidth - strWidth, marginGraphHeight);// Max Ping
 
-            return new Dimension(overlayWidth, overlayHeight);
+            //Fixed runelite border - no idea why it works
+            return new Dimension(overlayWidth - 8, overlayHeight - 8);
         }
 
         @Override

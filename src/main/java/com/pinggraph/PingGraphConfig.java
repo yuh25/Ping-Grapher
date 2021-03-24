@@ -18,7 +18,7 @@ public interface PingGraphConfig extends Config
 	)
 	default int graphWidth()
 	{
-		return 150;
+		return 170;
 	}
 
 	@ConfigItem(
@@ -29,7 +29,7 @@ public interface PingGraphConfig extends Config
 	)
 	default int graphHeight()
 	{
-		return 30;
+		return 60;
 	}
 
 	@Alpha
