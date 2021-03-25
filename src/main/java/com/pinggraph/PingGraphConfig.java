@@ -20,7 +20,7 @@ public interface PingGraphConfig extends Config
 	)
 	default int graphWidth()
 	{
-		return 170;
+		return 180;
 	}
 
 	@ConfigItem(
@@ -82,7 +82,7 @@ public interface PingGraphConfig extends Config
     @ConfigItem(
             position = 6,
             keyName = "toggleLineOnly",
-            name = "Graph Line only",
+            name = "Hide Labels",
             description = "Changes the plugin to only show a line"
     )
     default boolean toggleLineOnly() {

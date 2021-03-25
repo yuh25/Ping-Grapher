@@ -27,7 +27,7 @@ public class PingGraphOverlay extends OverlayPanel {
     private final int marginGraphWidth = 10;
     private final int marginGraphHeight = 15;
 
-    private final double round = 50.0; //used for rounding maxPing, looks nicer
+    private double round = 50.0; //used for rounding maxPing, looks nicer
 
     @Inject
     private PingGraphOverlay(Client client, PingGraphPlugin pingGraphPlugin, PingGraphConfig pingGraphConfig)
@@ -35,7 +35,6 @@ public class PingGraphOverlay extends OverlayPanel {
         this.client = client;
         this.pingGraphPlugin = pingGraphPlugin;
         this.pingGraphConfig = pingGraphConfig;
-        //setLayer(OverlayLayer.ABOVE_SCENE);
         setPosition(OverlayPosition.BOTTOM_LEFT);
     }
 
@@ -62,6 +61,7 @@ public class PingGraphOverlay extends OverlayPanel {
             int oldY = -1;
 
             int maxPing = pingGraphPlugin.getMaxPing();
+            int minPing = pingGraphPlugin.getMinPing();
 
             if (maxPing <= 0) {
                 // change maxPing to 100, prevents div by 0 incase of error
@@ -74,16 +74,16 @@ public class PingGraphOverlay extends OverlayPanel {
                 graphics.setColor(pingGraphConfig.graphBackgroundColor());
                 graphics.fillRect(0, 0, overlayWidth, overlayHeight);
 
-                //overlay border box
+                //outside border
                 graphics.setColor(pingGraphConfig.graphBorderColor());
-                graphics.drawRect(0, 0, overlayWidth, overlayHeight);         //outside border
+                graphics.drawRect(0, 0, overlayWidth, overlayHeight);
 
                 //inside border
                 graphics.drawRect(marginGraphWidth - 1, marginGraphHeight + 1, width, height);
 
                 int currPing = pingGraphPlugin.getCurrentPing();
 
-                // round maxPing up to nearest 50ms
+                round = maxPing > 50 ? 50 : 10; // round ping up to nearest 50ms if > 50 else 10ms
                 maxPing = (int) (Math.ceil((double) pingGraphPlugin.getMaxPing() / round) * round);
 
                 if ((maxPing - pingGraphPlugin.getMaxPing()) <= (0.2 * maxPing)) {
@@ -98,14 +98,10 @@ public class PingGraphOverlay extends OverlayPanel {
                     int y = pingGraphPlugin.getPingList().get(x);
 
                     // change a "timed out" to spike rather than drop
-                    if (y < 0) {
-                        y = maxPing - 1;
-                    }
+                    y = y < 0 ? maxPing - 1: y;
 
-                    //scale the y values between 0 and max ping
+                    //scale the x and y values to fit to the plugin
                     y = height - (height * y / maxPing) + marginGraphHeight;
-
-                    //scale the x values between to graph
                     int tempX = width * x / 100 + marginGraphWidth;
 
                     if (y >= 0) {
@@ -119,17 +115,16 @@ public class PingGraphOverlay extends OverlayPanel {
                     oldY = y;
                 }
 
+                //current Ping
                 graphics.setColor(pingGraphConfig.graphTextColor());
                 String temp = "Latency: " + currPing + "ms";
                 if (currPing < 0) temp = "Latency: Timed out";
-                graphics.drawString(temp, marginGraphWidth, marginGraphHeight - 1); //current Ping
+                graphics.drawString(temp, marginGraphWidth, marginGraphHeight - 1);
 
-                //int strWidth = graphics.getFontMetrics().stringWidth("0ms");
-                //graphics.drawString("0ms", overlayWidth - strWidth, overlayHeight); //0
-
+                //Max Ping
                 temp = "Max: " + pingGraphPlugin.getMaxPing() + "ms";
                 int strWidth = graphics.getFontMetrics().stringWidth(temp);
-                graphics.drawString(temp, overlayWidth - strWidth - marginGraphWidth, marginGraphHeight - 1);//Max Ping
+                graphics.drawString(temp, overlayWidth - strWidth - marginGraphWidth, marginGraphHeight - 1);
 
                 //Fixed runelite border - no idea why it works
                 return new Dimension(overlayWidth - 8, overlayHeight - 8);
@@ -141,9 +136,9 @@ public class PingGraphOverlay extends OverlayPanel {
                 graphics.setColor(pingGraphConfig.graphBackgroundColor());
                 graphics.fillRect(0, 0, width, height);
 
-                //overlay border box
+                //outside border
                 graphics.setColor(pingGraphConfig.graphBorderColor());
-                graphics.drawRect(0, 0, width-1, height-1);       //outside border
+                graphics.drawRect(0, 0, width-1, height-1);
 
                 //drawing line graph
                 graphics.setColor(pingGraphConfig.graphLineColor());
@@ -152,14 +147,12 @@ public class PingGraphOverlay extends OverlayPanel {
                     int y = pingGraphPlugin.getPingList().get(x);
 
                     // change a "timed out" to spike rather than drop
-                    if (y < 0) {
-                        y = maxPing - 1;
-                    }
+                    y = y < 0 ? maxPing - 1: y;
 
-                    //scale the y values between 0 and max ping
-                    y = height - (height * y / maxPing);
+                    //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
 
-                    //scale the x values between to graph
+                    //scale the x and y values to fit to the plugin
+                    y = height - (((height - 5) * (y - minPing)) / (maxPing - minPing) + 5);
                     int tempX = width * x / 100;
 
                     if (y >= 0) {
@@ -174,8 +167,6 @@ public class PingGraphOverlay extends OverlayPanel {
                 }
                 return new Dimension(width - 8, height - 8);
             }
-
-
         }
 
         @Override
