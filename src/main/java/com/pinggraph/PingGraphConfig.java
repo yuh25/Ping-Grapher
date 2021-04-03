@@ -98,4 +98,24 @@ public interface PingGraphConfig extends Config
 	default boolean toggleBehind() {
 		return false;
 	}
+
+	@ConfigItem(
+			position = 8,
+			keyName = "toggleMaxMin",
+			name = "Scale between Max and Min ping",
+			description = "Only show range between max and min ping"
+	)
+	default boolean toggleRange() {
+		return false;
+	}
+
+	@ConfigItem(
+			position = 9,
+			keyName = "hideMargin",
+			name = "Hide Bottom and side margins",
+			description = "Removes the margins that surround the graph"
+	)
+	default boolean hideMargin() {
+		return false;
+	}
 }
