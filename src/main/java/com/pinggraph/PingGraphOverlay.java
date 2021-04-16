@@ -50,25 +50,27 @@ public class PingGraphOverlay extends OverlayPanel {
                 setLayer(OverlayLayer.ABOVE_WIDGETS);
             }
 
-            int overlayWidth = pingGraphConfig.graphWidth();
+            int overlayWidth = pingGraphConfig.graphWidth();    // overlay - size of the whole plugin
             int overlayHeight = pingGraphConfig.graphHeight();
-            int width, height, tempX;
+            int width, height, tempX;                           // width and height - size of the graph
 
             if(pingGraphConfig.hideMargin()) {
-                width = overlayWidth;
-                height = overlayHeight - marginGraphHeight * 1;
+                width = overlayWidth;                           // set graph width to whole plugin width
+                height = overlayHeight - marginGraphHeight;     // remove the extra height
             } else {
                 width = overlayWidth - marginGraphWidth * 2;
                 height = overlayHeight - marginGraphHeight * 2;
             }
 
-            int maxPing = pingGraphPlugin.getMaxPing();
-            int minPing = pingGraphPlugin.getMinPing();
+            if(pingGraphConfig.toggleLineOnly()) {
+                //background rect
+                graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                graphics.fillRect(0, 0, width, height);
 
-            // change maxPing to 100, prevents div by 0 in-case of error
-            if (maxPing <= 0) { maxPing = 100; }
-
-            if(!pingGraphConfig.toggleLineOnly()) {
+                //outside border
+                graphics.setColor(pingGraphConfig.graphBorderColor());
+                graphics.drawRect(0, 0, width, height);
+            } else {
                 //background rect
                 graphics.setColor(pingGraphConfig.graphBackgroundColor());
                 graphics.fillRect(0, 0, overlayWidth, overlayHeight);
@@ -79,21 +81,31 @@ public class PingGraphOverlay extends OverlayPanel {
 
                 //inside border
                 if(pingGraphConfig.hideMargin())
-                    graphics.drawRect(marginGraphWidth - 1, marginGraphHeight + 1, width, height);
+                    graphics.drawRect(0, marginGraphHeight + 1, width, height);
                 else
-                    graphics.drawRect(0, marginGraphHeight + 1, overlayWidth, height);
+                    graphics.drawRect(marginGraphWidth - 1, marginGraphHeight + 1, width, height);
 
-                //current Ping
+                //current Ping label
                 graphics.setColor(pingGraphConfig.graphTextColor());
                 String temp = "Latency: " + pingGraphPlugin.getCurrentPing() + "ms";
                 if (pingGraphPlugin.getCurrentPing() < 0) temp = "Latency: Timed out";
                 graphics.drawString(temp, marginGraphWidth, marginGraphHeight - 1);
 
-                //Max Ping
+                //Max Ping label
                 temp = "Max: " + pingGraphPlugin.getMaxPing() + "ms";
                 int strWidth = graphics.getFontMetrics().stringWidth(temp);
                 graphics.drawString(temp, overlayWidth - strWidth - marginGraphWidth, marginGraphHeight - 1);
+            }
 
+            int maxPing = pingGraphPlugin.getMaxPing();
+            int minPing = pingGraphPlugin.getMinPing();
+
+            // change maxPing to 100, prevents div by 0 in-case of error
+            if (maxPing <= 0) { maxPing = 100; }
+
+
+            //if checked the graph will scale between min and max ping
+            if(!pingGraphConfig.toggleRange()) {
                 round = maxPing > 50 ? 50 : 10; // round ping up to nearest 50ms if > 50 else 10ms
                 maxPing = (int) (Math.ceil((double) pingGraphPlugin.getMaxPing() / round) * round);
 
@@ -101,35 +113,36 @@ public class PingGraphOverlay extends OverlayPanel {
                     // increase the max ping to move the graph away from the top
                     maxPing += round;
                 }
-
-            } else {
-                //background rect
-                graphics.setColor(pingGraphConfig.graphBackgroundColor());
-                graphics.fillRect(0, 0, width, height);
-
-                //outside border
-                graphics.setColor(pingGraphConfig.graphBorderColor());
-                graphics.drawRect(0, 0, width-1, height-1);
             }
+
             //drawing line graph
             graphics.setColor(pingGraphConfig.graphLineColor());
             int oldX, oldY = oldX =  -1;
             for (int x = 0; x < pingGraphPlugin.getPingList().size(); x++) {
                 int y = pingGraphPlugin.getPingList().get(x);
 
-                y = y < 0 ? maxPing - 1: y; // change a "timed out" to spike rather than drop
+                y = y < 0 ? maxPing - 1 : y; // change a "timed out" to spike rather than drop
 
                 //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
                 //scale the x and y values to fit to the plugin
-                if(pingGraphConfig.toggleRange()) { //limit between 0 and max ping
-                    y = height - (height * y / maxPing) + marginGraphHeight;
-                    tempX = width * x / 100 + marginGraphWidth;
+                if(pingGraphConfig.toggleRange()) { //limit between min ping and max ping
+                    y = height - (((height - 2) * (y - minPing)) / (maxPing - minPing) + 1);
                 } else {
-                    y = height - (((height - 5) * (y - minPing)) / (maxPing - minPing) + 5);
-                    tempX = width * x / 100;
+                    y = height - (height * y / maxPing);
+                }
+                tempX = width * x / 100;
+
+                y += marginGraphHeight;
+
+                if(!pingGraphConfig.hideMargin()){
+                    tempX += marginGraphWidth;
                 }
 
-                if(pingGraphConfig.hideMargin()) y += marginGraphHeight;
+                if(pingGraphConfig.toggleLineOnly()){
+                    if(!pingGraphConfig.hideMargin())
+                        tempX -= marginGraphWidth;
+                    y -= marginGraphHeight;
+                }
 
                 if (y >= 0) { graphics.drawLine(tempX, y, tempX, y); }
                 if (oldX != -1 && y >= 0) { graphics.drawLine(oldX, oldY, tempX, y); }
@@ -137,7 +150,7 @@ public class PingGraphOverlay extends OverlayPanel {
                 oldX = tempX;
                 oldY = y;
             }
-            if(!pingGraphConfig.hideMargin())
+            if(!pingGraphConfig.toggleLineOnly())
                 return new Dimension(overlayWidth - 8, overlayHeight - 8);
             return new Dimension(width - 8, height - 8);
         }

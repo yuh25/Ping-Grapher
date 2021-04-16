@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.WorldService;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -54,6 +56,7 @@ public class PingGraphPlugin extends Plugin
 	private int currentPing;
 
 	private final int numCells = 100;
+	private int count = 0;
 
 	@Getter
 	private int maxPing = -1;
@@ -67,7 +70,7 @@ public class PingGraphPlugin extends Plugin
 	protected void startUp() throws Exception
 	{
 		for(int i = 0; i<numCells; i++){
-			pingList.add(0);
+			pingList.add(1);
 		}
 		log.info("Ping Graph started!");
 		overlayManager.add(pingGrpahOverlay);
@@ -96,6 +99,12 @@ public class PingGraphPlugin extends Plugin
 		return configManager.getConfig(PingGraphConfig.class);
 	}
 
+	/*@Subscribe
+	public void onGameTick(GameTick tick)
+	{
+
+	}*/
+
 	// Code used from runelites worldhopper
 	private void pingCurrentWorld()
 	{
@@ -112,11 +121,13 @@ public class PingGraphPlugin extends Plugin
 		maxPing = -1;
 		minPing = Integer.MAX_VALUE;
 
-		for (int ping: pingList) {
-			if(maxPing < ping)
-				maxPing = ping;
-			if(minPing > ping)
-				minPing = ping;
+		for (int ping : pingList) {
+			if(ping > 0) {
+				if (maxPing < ping)
+					maxPing = ping;
+				if (minPing > ping)
+					minPing = ping;
+			}
 		}
 	}
 }
