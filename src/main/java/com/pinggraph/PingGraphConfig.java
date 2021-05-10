@@ -92,7 +92,7 @@ public interface PingGraphConfig extends Config
 	@ConfigItem(
 			position = 7,
 			keyName = "toggleBehind",
-			name = "Hide Behind interfaces",
+			name = "Hide Behind Interfaces",
 			description = "Hides graph behind interfaces i.e bank and map"
 	)
 	default boolean toggleBehind() {
@@ -102,7 +102,7 @@ public interface PingGraphConfig extends Config
 	@ConfigItem(
 			position = 8,
 			keyName = "toggleMaxMin",
-			name = "Scale between Max and Min ping",
+			name = "Scale Between Max and Min Ping",
 			description = "Only show range between max and min ping"
 	)
 	default boolean toggleRange() {
@@ -112,10 +112,20 @@ public interface PingGraphConfig extends Config
 	@ConfigItem(
 			position = 9,
 			keyName = "hideMargin",
-			name = "Hide Bottom and side margins",
+			name = "Hide Bottom and Side Margins",
 			description = "Removes the margins that surround the graph"
 	)
 	default boolean hideMargin() {
+		return false;
+	}
+
+	@ConfigItem(
+			position = 10,
+			keyName = "graphTicks",
+			name = "Graph Game Ticks",
+			description = "Changes the graph to show game ticks(normally around 600ms)"
+	)
+	default boolean graphTicks() {
 		return false;
 	}
 }
