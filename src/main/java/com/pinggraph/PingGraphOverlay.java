@@ -66,29 +66,27 @@ public class PingGraphOverlay extends OverlayPanel {
                 width = overlayWidth - marginGraphWidth * 2;
                 height = overlayHeight - marginGraphHeight * 2;
             }
+            int w = pingGraphConfig.toggleLineOnly() ? width : overlayWidth;
+            int h = pingGraphConfig.toggleLineOnly() ? height : overlayHeight;
 
-            if(pingGraphConfig.toggleLineOnly()) {
-                //background rect
-                graphics.setColor(pingGraphConfig.graphBackgroundColor());
-                graphics.fillRect(0, 0, width, height);
+            //background rect
+            graphics.setColor(pingGraphConfig.overlayBackgroundColor());
+            graphics.fillRect(0, 0, w, h);
 
-                //outside border
-                graphics.setColor(pingGraphConfig.graphBorderColor());
-                graphics.drawRect(0, 0, width, height);
-            } else {
-                //background rect
-                graphics.setColor(pingGraphConfig.graphBackgroundColor());
-                graphics.fillRect(0, 0, overlayWidth, overlayHeight);
+            //outside border
+            graphics.setColor(pingGraphConfig.overlayBorderColor());
+            graphics.drawRect(0, 0, w, h);
 
-                //outside border
-                graphics.setColor(pingGraphConfig.graphBorderColor());
-                graphics.drawRect(0, 0, overlayWidth, overlayHeight);
+            if(!pingGraphConfig.toggleLineOnly()) {
 
                 //inside border
-                if(pingGraphConfig.hideMargin())
-                    graphics.drawRect(0, marginGraphHeight + 1, width, height);
-                else
-                    graphics.drawRect(marginGraphWidth - 1, marginGraphHeight + 1, width, height);
+                graphics.setColor(pingGraphConfig.graphBorderColor());
+                int x = pingGraphConfig.hideMargin() ? 0 : marginGraphWidth - 1;
+                graphics.drawRect(x, marginGraphHeight + 1, width, height);
+
+                //inside rect
+                graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                graphics.fillRect(x, marginGraphHeight + 1, width, height);
 
                 //Max Ping label
                 graphics.setColor(pingGraphConfig.graphTextColor());
