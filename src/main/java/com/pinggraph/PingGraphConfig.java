@@ -11,32 +11,9 @@ import java.awt.Color;
 @ConfigGroup("pinggraph")
 public interface PingGraphConfig extends Config
 {
-
-	@ConfigItem(
-			position = 0,
-			keyName = "graphWidth",
-			name = "Graph Width",
-			description = "Configures the width of the graph"
-	)
-	default int graphWidth()
-	{
-		return 180;
-	}
-
-	@ConfigItem(
-			position = 1,
-			keyName = "graphHeight",
-			name = "Graph Height",
-			description = "Configures the height of the graph"
-	)
-	default int graphHeight()
-	{
-		return 60;
-	}
-
 	@Alpha
 	@ConfigItem(
-			position = 2,
+			position = 0,
 			keyName = "graphTextColor",
 			name = "Graph Text Color",
 			description = "The color of the text"
@@ -47,7 +24,7 @@ public interface PingGraphConfig extends Config
 
 	@Alpha
 	@ConfigItem(
-			position = 3,
+			position = 1,
 			keyName = "graphLineColor",
 			name = "Graph Line Color",
 			description = "The color of the graph line"
@@ -58,7 +35,7 @@ public interface PingGraphConfig extends Config
 
 	@Alpha
 	@ConfigItem(
-			position = 4,
+			position = 2,
 			keyName = "OverlayBackgroundColor",
 			name = "Overlay Background Color",
 			description = "The background color of the overlay"
@@ -69,7 +46,7 @@ public interface PingGraphConfig extends Config
 
 	@Alpha
 	@ConfigItem(
-			position = 5,
+			position = 3,
 			keyName = "OverlayBorderColor",
 			name = "Overlay Border Color",
 			description = "The border color of the overlay"
@@ -80,7 +57,7 @@ public interface PingGraphConfig extends Config
 
 	@Alpha
 	@ConfigItem(
-			position = 6,
+			position = 4,
 			keyName = "graphBackgroundColor",
 			name = "Graph Background Color",
 			description = "The background color of the graph"
@@ -90,7 +67,7 @@ public interface PingGraphConfig extends Config
 
 	@Alpha
 	@ConfigItem(
-			position = 7,
+			position = 5,
 			keyName = "graphBorderColor",
 			name = "Graph Border Color",
 			description = "The border color of the graph"
@@ -103,7 +80,7 @@ public interface PingGraphConfig extends Config
 
 
     @ConfigItem(
-            position = 8,
+            position = 6,
             keyName = "toggleLineOnly",
             name = "Hide Labels",
             description = "Changes the plugin to only show a line"
@@ -113,7 +90,7 @@ public interface PingGraphConfig extends Config
     }
 
 	@ConfigItem(
-			position = 9,
+			position = 7,
 			keyName = "toggleBehind",
 			name = "Hide Behind Interfaces",
 			description = "Hides graph behind interfaces i.e bank and map"
@@ -123,7 +100,7 @@ public interface PingGraphConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 10,
+			position = 8,
 			keyName = "toggleMaxMin",
 			name = "Scale Between Max and Min Ping",
 			description = "Only show range between max and min ping"
@@ -133,7 +110,7 @@ public interface PingGraphConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 11,
+			position = 9,
 			keyName = "hideMargin",
 			name = "Hide Bottom and Side Margins",
 			description = "Removes the margins that surround the graph"
@@ -143,7 +120,7 @@ public interface PingGraphConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 12,
+			position = 10,
 			keyName = "graphTicks",
 			name = "Graph Game Ticks",
 			description = "Changes the graph to show game ticks(normally around 600ms)"

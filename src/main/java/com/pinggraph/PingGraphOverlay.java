@@ -46,8 +46,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
             if(pingGraphConfig.toggleBehind()) {
                 setLayer(OverlayLayer.ABOVE_SCENE);
-            }
-            else {
+            } else {
                 setLayer(OverlayLayer.ABOVE_WIDGETS);
             }
 
@@ -55,8 +54,8 @@ public class PingGraphOverlay extends OverlayPanel {
 
             data = pingGraphConfig.graphTicks() ? pingGraphPlugin.getTickTimeList() : pingGraphPlugin.getPingList();
 
-            int overlayWidth = pingGraphConfig.graphWidth();    // overlay - size of the whole plugin
-            int overlayHeight = pingGraphConfig.graphHeight();
+            int overlayWidth = getPreferredSize().width;
+            int overlayHeight = getPreferredSize().height;
             int width, height, tempX;                           // width and height - size of the graph
 
             if(pingGraphConfig.hideMargin()) {
@@ -66,16 +65,19 @@ public class PingGraphOverlay extends OverlayPanel {
                 width = overlayWidth - marginGraphWidth * 2;
                 height = overlayHeight - marginGraphHeight * 2;
             }
-            int w = pingGraphConfig.toggleLineOnly() ? width : overlayWidth;
-            int h = pingGraphConfig.toggleLineOnly() ? height : overlayHeight;
+
+            if(pingGraphConfig.toggleLineOnly()){
+                width = overlayWidth;
+                height = overlayHeight;
+            }
 
             //background rect
             graphics.setColor(pingGraphConfig.overlayBackgroundColor());
-            graphics.fillRect(0, 0, w, h);
+            graphics.fillRect(0, 0, overlayWidth, overlayHeight);
 
             //outside border
             graphics.setColor(pingGraphConfig.overlayBorderColor());
-            graphics.drawRect(0, 0, w, h);
+            graphics.drawRect(0, 0, overlayWidth, overlayHeight);
 
             if(!pingGraphConfig.toggleLineOnly()) {
 
@@ -88,7 +90,7 @@ public class PingGraphOverlay extends OverlayPanel {
                 graphics.setColor(pingGraphConfig.graphBackgroundColor());
                 graphics.fillRect(x, marginGraphHeight + 1, width, height);
 
-                //Max Ping label
+                //max Ping label
                 graphics.setColor(pingGraphConfig.graphTextColor());
                 String temp = "Max: " + pingGraphPlugin.getMaxPing() + "ms";
                 int strWidth = graphics.getFontMetrics().stringWidth(temp);
@@ -115,10 +117,18 @@ public class PingGraphOverlay extends OverlayPanel {
                 }
             }
 
+            if(maxPing == minPing) {
+                maxPing += 1;
+                minPing -= 1;
+            }
+
             //drawing line graph
             graphics.setColor(pingGraphConfig.graphLineColor());
-            int oldX, oldY = oldX =  -1;
-            for (int x = 0; x < data.size(); x++) {
+            int oldX, oldY = oldX = -1;
+
+            int min = data.size() > overlayWidth ? (data.size() - overlayWidth) : 0 ;
+
+            for (int x = min; x < data.size(); x++) {
                 int y = data.get(x);
 
                 y = y < 0 ? maxPing - 1 : y; // change a "timed out" to spike rather than drop
@@ -130,7 +140,8 @@ public class PingGraphOverlay extends OverlayPanel {
                 } else {
                     y = height - (height * y / maxPing);
                 }
-                tempX = width * x / 100;
+
+                tempX = ((width) * (x - min) / (data.size() - min));
 
                 y += marginGraphHeight;
 
@@ -150,14 +161,13 @@ public class PingGraphOverlay extends OverlayPanel {
                 oldX = tempX;
                 oldY = y;
             }
-            if(!pingGraphConfig.toggleLineOnly())
-                return new Dimension(overlayWidth - 8, overlayHeight - 8);
-            return new Dimension(width - 8, height - 8);
+
+            return new Dimension(overlayWidth - 8, overlayHeight - 8);
         }
 
         @Override
         public Rectangle getBounds() {
-            return new Rectangle(pingGraphConfig.graphWidth(), pingGraphConfig.graphHeight());
+            return new Rectangle(getPreferredSize().width, getPreferredSize().height);
         }
 
         @Override

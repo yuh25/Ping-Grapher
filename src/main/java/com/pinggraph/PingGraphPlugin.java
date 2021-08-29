@@ -53,10 +53,10 @@ public class PingGraphPlugin extends Plugin
 	private ScheduledFuture<?> pingFuture, currPingFuture;
 
 	@Getter
-	private final LinkedList<Integer> pingList = new LinkedList<>();
+	private LinkedList<Integer> pingList = new LinkedList<>();
 
 	@Getter
-	private final LinkedList<Integer> tickTimeList = new LinkedList<>();
+	private LinkedList<Integer> tickTimeList = new LinkedList<>();
 
 	@Getter
 	private int currentPing;
@@ -82,11 +82,12 @@ public class PingGraphPlugin extends Plugin
 
 	@Override
 	protected void startUp() throws Exception {
+
 		pingList.clear();
-		for(int i = 0; i<numCells; i++) pingList.add(1);
+		for(int i = 0; i < numCells; i++) pingList.add(1);
 
 		tickTimeList.clear();
-		for(int i = 0; i<numCells; i++) tickTimeList.add(600);
+		for(int i = 0; i < numCells; i++) tickTimeList.add(600);
 
 		log.info("Ping Graph started!");
 		overlayManager.add(pingGrpahOverlay);
@@ -104,6 +105,7 @@ public class PingGraphPlugin extends Plugin
 		pingExecutorService.shutdown();
 		pingExecutorService = null;
 		pingList.clear();
+		tickTimeList.clear();
 		log.info("Ping Graph stopped!");
 	}
 
@@ -170,7 +172,6 @@ public class PingGraphPlugin extends Plugin
 					minVal = val;
 			}
 		}
-		int[] temp = {maxVal,minVal};
-		return temp;
+		return new int[]{maxVal, minVal};
 	}
 }
