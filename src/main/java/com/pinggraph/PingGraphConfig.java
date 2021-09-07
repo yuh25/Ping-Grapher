@@ -4,7 +4,6 @@ import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
-import net.runelite.client.config.Range;
 
 import java.awt.Color;
 
@@ -75,9 +74,6 @@ public interface PingGraphConfig extends Config
 	default Color graphBorderColor() {
 		return new Color(0, 0,  0, 70);
 	}
-
-
-
 
     @ConfigItem(
             position = 6,

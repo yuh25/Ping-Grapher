@@ -69,14 +69,9 @@ public class PingGraphPlugin extends Plugin
 
 	@Getter
 	private boolean isLagging;
-
 	private long lastTickTime;
 
-	@Getter
-	private long timeSinceLastTick;
-
 	private final int numCells = 100;
-	private int count = 0;
 
 	private ScheduledExecutorService pingExecutorService;
 
@@ -99,9 +94,7 @@ public class PingGraphPlugin extends Plugin
 	protected void shutDown() throws Exception {
 		currPingFuture.cancel(true);
 		currPingFuture = null;
-
 		overlayManager.remove(pingGrpahOverlay);
-
 		pingExecutorService.shutdown();
 		pingExecutorService = null;
 		pingList.clear();
@@ -118,12 +111,12 @@ public class PingGraphPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick tick) {
 		long tickTime = new Date().getTime();
-		long tickDiff = (int)(tickTime - lastTickTime);
+		int tickDiff = (int)(tickTime - lastTickTime);
 		if(tickDiff < 10000) // should be enough to hide initial tick on startup
-			tickTimeList.add((int)(tickTime - lastTickTime));
-		else {
+			tickTimeList.add(tickDiff);
+		else
 			tickTimeList.add(600);
-		}
+
 		tickTimeList.remove();
 		lastTickTime = new Date().getTime();
 	}
@@ -133,11 +126,11 @@ public class PingGraphPlugin extends Plugin
 		long now = new Date().getTime();
 		isLagging = (now - lastTickTime) > (700);
 		int[] temp;
-		if(config.graphTicks()) {
-			temp = getMaxMinFromList(tickTimeList);
-		} else { // change the max & min to ping values to fix scaling
-			temp = getMaxMinFromList(pingList);
-		}
+		if(config.graphTicks())
+			temp = getMaxMinFromList(tickTimeList, 0);
+		else
+			temp = getMaxMinFromList(pingList, 0);
+
 		maxPing = temp[0];
 		minPing = temp[1];
 	}
@@ -153,18 +146,19 @@ public class PingGraphPlugin extends Plugin
 		currentPing = Ping.ping(currentWorld);
 		pingList.add(currentPing);
 		pingList.remove();// remove the first ping
-		int[] temp = getMaxMinFromList(pingList);
+		int[] temp = getMaxMinFromList(pingList,0);
 		if(!config.graphTicks()) {
 			maxPing = temp[0];
 			minPing = temp[1];
 		}
 	}
 
-	private int[] getMaxMinFromList(LinkedList<Integer> list){
+	public int[] getMaxMinFromList(LinkedList<Integer> list, int start){
 		int maxVal = -1;
 		int minVal = Integer.MAX_VALUE;
 
-		for (int val : list) {
+		for (int i = start; i < list.size(); i++) {
+			int val = list.get(i);
 			if(val > 0) {
 				if (maxVal < val)
 					maxVal = val;
