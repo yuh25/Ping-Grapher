@@ -1,5 +1,11 @@
 package com.pinggraph;
 
+import net.runelite.api.Client;
+import net.runelite.client.ui.overlay.OverlayLayer;
+import net.runelite.client.ui.overlay.OverlayPanel;
+import net.runelite.client.ui.overlay.OverlayPosition;
+import net.runelite.client.ui.overlay.components.LayoutableRenderableEntity;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -8,12 +14,6 @@ import java.awt.RenderingHints;
 import java.util.LinkedList;
 
 import javax.inject.Inject;
-
-import net.runelite.api.Client;
-import net.runelite.client.ui.overlay.OverlayLayer;
-import net.runelite.client.ui.overlay.OverlayPanel;
-import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.components.LayoutableRenderableEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,11 +25,11 @@ public class PingGraphOverlay extends OverlayPanel {
     private final PingGraphConfig pingGraphConfig;
 
     @Inject
-    private PingGraphOverlay(Client client, PingGraphPlugin pingGraphPlugin, PingGraphConfig pingGraphConfig){
+    private PingGraphOverlay(Client client, PingGraphPlugin pingGraphPlugin, PingGraphConfig pingGraphConfig) {
         this.client = client;
         this.pingGraphPlugin = pingGraphPlugin;
         this.pingGraphConfig = pingGraphConfig;
-        if(getPreferredSize() == null){
+        if (getPreferredSize() == null) {
             PingGraphOverlay.this.setPreferredSize(new Dimension(180, 60));
         }
         setPosition(OverlayPosition.TOP_LEFT);
@@ -37,12 +37,12 @@ public class PingGraphOverlay extends OverlayPanel {
 
 
 
-    LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity(){
+    LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity() {
         @Override
         public Dimension render(Graphics2D graphics) {
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-            if(pingGraphConfig.toggleBehind()) {
+            if (pingGraphConfig.toggleBehind()) {
                 setLayer(OverlayLayer.ABOVE_SCENE);
             } else {
                 setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -52,8 +52,7 @@ public class PingGraphOverlay extends OverlayPanel {
             try {
                 overlayWidth = getPreferredSize().width;
                 overlayHeight = getPreferredSize().height;
-            } catch(NullPointerException e){
-                System.out.println("NullPointerException - PreferredSize not set");
+            } catch (NullPointerException e) {
                 PingGraphOverlay.this.setPreferredSize(new Dimension(180, 60));
                 overlayWidth = 180;
                 overlayHeight = 60;
@@ -63,7 +62,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
             int marginGraphHeight = 15;
             int marginGraphWidth = 10;
-            if(pingGraphConfig.hideMargin()) {
+            if (pingGraphConfig.hideMargin()) {
                 width = overlayWidth;                       // set graph width to whole plugin width
                 height = overlayHeight - marginGraphHeight; // remove the extra height
             } else {
@@ -79,7 +78,7 @@ public class PingGraphOverlay extends OverlayPanel {
             graphics.setColor(pingGraphConfig.overlayBorderColor());
             graphics.drawRect(0, 0, overlayWidth, overlayHeight);
 
-            if(!pingGraphConfig.toggleLineOnly()) {
+            if (!pingGraphConfig.toggleLineOnly()) {
                 //inside border
                 graphics.setColor(pingGraphConfig.graphBorderColor());
                 int x = pingGraphConfig.hideMargin() ? 0 : marginGraphWidth - 1;
@@ -106,22 +105,20 @@ public class PingGraphOverlay extends OverlayPanel {
 
             LinkedList<Integer> data;
             data = pingGraphConfig.graphTicks() ? pingGraphPlugin.getTickTimeList() : pingGraphPlugin.getPingList();
+
             int dataStart = (data.size() > overlayWidth) ? (data.size() - overlayWidth) : 0;
+            pingGraphPlugin.setGraphStart(dataStart);
 
             int maxPing = pingGraphPlugin.getMaxPing();
             int minPing = pingGraphPlugin.getMinPing();
 
-            if(data.size() > overlayWidth){
-                dataStart = (data.size() - overlayWidth);
-                int[] temp = pingGraphPlugin.getMaxMinFromList(data, dataStart);
-                maxPing = temp[0];
-                minPing = temp[1];
-            }
 
             // change maxPing to 100, prevents div by 0 in-case of error
-            if (maxPing <= 0) { maxPing = 100; }
+            if (maxPing <= 0) {
+                maxPing = 100;
+            }
             //if checked the graph will scale between min and max ping
-            if(!pingGraphConfig.toggleRange()) {
+            if (!pingGraphConfig.toggleRange()) {
 
                 double round = maxPing > 50 ? 50 : 10; // round ping up to nearest 50ms if > 50 else 10ms
                 maxPing = (int) (Math.ceil((double) pingGraphPlugin.getMaxPing() / round) * round);
@@ -131,7 +128,7 @@ public class PingGraphOverlay extends OverlayPanel {
                 }
             }
 
-            if(maxPing == minPing) {
+            if (maxPing == minPing) {
                 maxPing++;
                 minPing--;
             }
@@ -147,7 +144,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
                 //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
                 //scale the x and y values to fit to the plugin
-                if(pingGraphConfig.toggleRange()) { //limit between min ping and max ping
+                if (pingGraphConfig.toggleRange()) { //limit between min ping and max ping
                     y = height - (((height - 2) * (y - minPing)) / (maxPing - minPing) + 1);
                 } else {
                     y = height - (height * y / maxPing);
@@ -157,18 +154,22 @@ public class PingGraphOverlay extends OverlayPanel {
 
                 y += marginGraphHeight;
 
-                if(!pingGraphConfig.hideMargin()){
+                if (!pingGraphConfig.hideMargin()) {
                     tempX += marginGraphWidth;
                 }
 
-                if(pingGraphConfig.toggleLineOnly()){
-                    if(!pingGraphConfig.hideMargin())
+                if (pingGraphConfig.toggleLineOnly()) {
+                    if (!pingGraphConfig.hideMargin())
                         tempX -= marginGraphWidth;
                     y -= marginGraphHeight;
                 }
 
-                if (y >= 0) { graphics.drawLine(tempX, y, tempX, y); }
-                if (oldX != -1 && y >= 0) { graphics.drawLine(oldX, oldY, tempX, y); }
+                if (y >= 0) {
+                    graphics.drawLine(tempX, y, tempX, y);
+                }
+                if (oldX != -1 && y >= 0) {
+                    graphics.drawLine(oldX, oldY, tempX, y);
+                }
 
                 oldX = tempX;
                 oldY = y;
@@ -183,10 +184,12 @@ public class PingGraphOverlay extends OverlayPanel {
         }
 
         @Override
-        public void setPreferredLocation(java.awt.Point position) {}
+        public void setPreferredLocation(java.awt.Point position) {
+        }
 
         @Override
-        public void setPreferredSize(Dimension dimension) {}
+        public void setPreferredSize(Dimension dimension) {
+        }
     };
 
 
