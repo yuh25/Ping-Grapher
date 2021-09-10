@@ -33,6 +33,7 @@ public class PingGraphOverlay extends OverlayPanel {
             PingGraphOverlay.this.setPreferredSize(new Dimension(180, 60));
         }
         setPosition(OverlayPosition.TOP_LEFT);
+        setMinimumSize(15);
     }
 
 
