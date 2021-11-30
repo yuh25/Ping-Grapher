@@ -58,6 +58,12 @@ public class PingGraphPlugin extends Plugin {
     @Getter
     private int minPing = Integer.MAX_VALUE;
     @Getter
+    private int currentTick;
+    @Getter
+    private int maxTick = -1;
+    @Getter
+    private int minTick = Integer.MAX_VALUE;
+    @Getter
     private boolean isLagging;
     private long lastTickTime;
     @Setter
@@ -106,7 +112,7 @@ public class PingGraphPlugin extends Plugin {
         } else {
             tickTimeList.add(600);
         }
-
+        currentTick = tickDiff;
         tickTimeList.remove();
         lastTickTime = new Date().getTime();
     }
@@ -116,11 +122,13 @@ public class PingGraphPlugin extends Plugin {
         long now = new Date().getTime();
         isLagging = (now - lastTickTime) > 700;
         int[] temp;
-        if (config.graphTicks()) {
-            temp = getMaxMinFromList(tickTimeList, graphStart);
-        } else {
-            temp = getMaxMinFromList(pingList, graphStart);
-        }
+
+        //update Max min values
+        temp = getMaxMinFromList(tickTimeList, graphStart);
+        maxTick= temp[0];
+        minTick = temp[1];
+
+        temp = getMaxMinFromList(pingList, graphStart);
         maxPing = temp[0];
         minPing = temp[1];
     }
