@@ -49,18 +49,17 @@ public class PingGraphOverlay extends OverlayPanel {
                 setLayer(OverlayLayer.ABOVE_WIDGETS);
             }
 
-            int overlayWidth, overlayHeight;
+            int overlayWidth, overlayHeight;                // width and height of the entire overlay
             try {
                 overlayWidth = getPreferredSize().width;
                 overlayHeight = getPreferredSize().height;
             } catch (NullPointerException e) {
-                PingGraphOverlay.this.setPreferredSize(new Dimension(180, 60));
-                overlayWidth = 180;
+                overlayWidth = 180;                         // Default settings for first time
                 overlayHeight = 60;
+                PingGraphOverlay.this.setPreferredSize(new Dimension(overlayWidth, overlayHeight));
             }
 
-            int width, height, tempX;                       // width and height - size of the graph
-
+            int width, height, tempX;                       // width and height of the graph
             int marginGraphHeight = 15;
             int marginGraphWidth = 10;
             if (pingGraphConfig.hideMargin()) {
@@ -69,6 +68,12 @@ public class PingGraphOverlay extends OverlayPanel {
             } else {
                 width = overlayWidth - marginGraphWidth * 2;
                 height = overlayHeight - marginGraphHeight * 2;
+            }
+
+            if(pingGraphConfig.hideGraph()){
+                width = 0;
+                height = 0;
+                overlayHeight = 15;
             }
 
             //background rect
@@ -90,7 +95,6 @@ public class PingGraphOverlay extends OverlayPanel {
                 graphics.fillRect(x, marginGraphHeight + 1, width, height);
 
                 graphics.setColor(pingGraphConfig.graphTextColor());
-
 
                 String rightLabel = labelText(pingGraphConfig.rightLabel());
 
@@ -215,37 +219,35 @@ public class PingGraphOverlay extends OverlayPanel {
     // returns a string based on user settings
     private String labelText(PingGraphConfig.Labels setting){
         String tempLabel = "Label Error";
-        for(int i = 0; i < 1; i++) {
-            switch (setting) {
-                case LATENCY:
-                    tempLabel = "Latency: " + pingGraphPlugin.getCurrentPing()  + "ms";
-                    if (pingGraphPlugin.getCurrentPing() < 0)
-                        tempLabel = "Timed out";
-                    break;
-                case PING:
-                    tempLabel = "Ping: " + pingGraphPlugin.getCurrentPing() + "ms";
-                    if (pingGraphPlugin.getCurrentPing() < 0)
-                        tempLabel = "Timed out";
-                    break;
-                case PINGMAX:
-                    tempLabel = "Max: " + pingGraphPlugin.getMaxPing() + "ms";
-                    break;
-                case PINGMIN:
-                    tempLabel = "Min: " + pingGraphPlugin.getMaxPing() + "ms";
-                    break;
-                case TICK:
-                    tempLabel = "Tick: " + pingGraphPlugin.getCurrentTick() + "ms";
-                    break;
-                case TICKMAX:
-                    tempLabel = "Max Tick: " + pingGraphPlugin.getMaxTick() + "ms";
-                    break;
-                case TICKMIN:
-                    tempLabel = "Min Tick: " + pingGraphPlugin.getMinTick() + "ms";
-                    break;
-                case NONE:
-                    tempLabel = "";
-                    break;
-            }
+        switch (setting) {
+            case LATENCY:
+                tempLabel = "Latency: " + pingGraphPlugin.getCurrentPing()  + "ms";
+                if (pingGraphPlugin.getCurrentPing() < 0)
+                    tempLabel = "Timed out";
+                break;
+            case PING:
+                tempLabel = "Ping: " + pingGraphPlugin.getCurrentPing() + "ms";
+                if (pingGraphPlugin.getCurrentPing() < 0)
+                    tempLabel = "Timed out";
+                break;
+            case PINGMAX:
+                tempLabel = "Max(P): " + pingGraphPlugin.getMaxPing() + "ms";
+                break;
+            case PINGMIN:
+                tempLabel = "Min(P): " + pingGraphPlugin.getMinPing() + "ms";
+                break;
+            case TICK:
+                tempLabel = "Tick: " + pingGraphPlugin.getCurrentTick() + "ms";
+                break;
+            case TICKMAX:
+                tempLabel = "Max(T): " + pingGraphPlugin.getMaxTick() + "ms";
+                break;
+            case TICKMIN:
+                tempLabel = "Min(T): " + pingGraphPlugin.getMinTick() + "ms";
+                break;
+            case NONE:
+                tempLabel = "";
+                break;
         }
         return tempLabel;
     }

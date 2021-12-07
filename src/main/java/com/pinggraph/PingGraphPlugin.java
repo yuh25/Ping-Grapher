@@ -52,13 +52,13 @@ public class PingGraphPlugin extends Plugin {
     private PingGraphOverlay pingGrpahOverlay;
     private ScheduledFuture<?> pingFuture, currPingFuture;
     @Getter
-    private int currentPing;
+    private int currentPing = 1;
     @Getter
     private int maxPing = -1;
     @Getter
     private int minPing = Integer.MAX_VALUE;
     @Getter
-    private int currentTick;
+    private int currentTick = 600;
     @Getter
     private int maxTick = -1;
     @Getter
