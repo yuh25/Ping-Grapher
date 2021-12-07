@@ -125,7 +125,7 @@ public class PingGraphPlugin extends Plugin {
 
         //update Max min values
         temp = getMaxMinFromList(tickTimeList, graphStart);
-        maxTick= temp[0];
+        maxTick = temp[0];
         minTick = temp[1];
 
         temp = getMaxMinFromList(pingList, graphStart);
