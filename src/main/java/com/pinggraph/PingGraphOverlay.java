@@ -88,10 +88,10 @@ public class PingGraphOverlay extends OverlayPanel {
                     fontName = "Runescape Small";           // Default name if the font name is empty
                 }
 
-                Font userFont = new Font(fontName, pingGraphConfig.fontStyle().getvalue(), pingGraphConfig.fontSize());
+                Font userFont = new Font(fontName, pingGraphConfig.fontStyle().getValue(), pingGraphConfig.fontSize());
 
                 if (userFont.getFamily().equals("Dialog")) { // Cant find the font, change to default
-                    userFont = new Font("Runescape Small", pingGraphConfig.fontStyle().getvalue(), pingGraphConfig.fontSize());
+                    userFont = new Font("Runescape Small", pingGraphConfig.fontStyle().getValue(), pingGraphConfig.fontSize());
                 }
                 graphics.setFont(userFont);
 
@@ -131,13 +131,14 @@ public class PingGraphOverlay extends OverlayPanel {
                 maxValue = 100;
             }
             //if checked the graph will scale between min and max ping
+            int tempMax = maxValue;
             if (!pingGraphConfig.toggleRange()) {
 
-                double round = maxValue > 50 ? 50 : 10; // round ping up to nearest 50ms if > 50 else 10ms
-                maxValue = (int) (Math.ceil((double) pingGraphPlugin.getMaxPing() / round) * round);
+                double round = maxValue > 50 ? 50 : 10; // round up to nearest 50ms if > 50 else 10ms
+                maxValue = (int) (Math.ceil((double) tempMax / round) * round);
 
-                if ((maxValue - pingGraphPlugin.getMaxPing()) <= (0.2 * maxValue)) {
-                    maxValue += round; // increase the max ping to move the graph away from the top
+                if ((maxValue - tempMax) <= (0.2 * maxValue)) {
+                    maxValue += round; // increase the max value to move the graph away from the top
                 }
             }
 

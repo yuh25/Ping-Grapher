@@ -232,7 +232,7 @@ public interface PingGraphConfig extends Config {
             this.value = value;
         }
 
-        public int getvalue() {
+        public int getValue() {
             return value;
         }
     }
