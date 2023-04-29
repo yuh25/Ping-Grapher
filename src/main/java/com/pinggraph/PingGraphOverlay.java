@@ -27,10 +27,21 @@ public class PingGraphOverlay extends OverlayPanel {
     private final Client client;
     private final PingGraphPlugin pingGraphPlugin;
     private final PingGraphConfig pingGraphConfig;
+
+    public int marginGraphHeight;
+    public int marginGraphWidth = 10;
     LayoutableRenderableEntity graphEntity = new LayoutableRenderableEntity() {
         @Override
         public Dimension render(Graphics2D graphics) {
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+            int tempPing  = pingGraphPlugin.getCurrentPing();
+            int tempTick  = pingGraphPlugin.getCurrentTick();
+            if(pingGraphConfig.warnMaxToggle()) {
+                tempPing = pingGraphPlugin.getMaxPing();
+                tempTick  = pingGraphPlugin.getCurrentTick();
+            }
+            boolean warning = (tempPing > pingGraphConfig.warnPingVal() || tempTick > pingGraphConfig.warnTickVal());
 
             if (pingGraphConfig.toggleBehind()) {
                 setLayer(OverlayLayer.ABOVE_SCENE);
@@ -48,9 +59,8 @@ public class PingGraphOverlay extends OverlayPanel {
                 PingGraphOverlay.this.setPreferredSize(new Dimension(overlayWidth, overlayHeight));
             }
 
-            int width, height, tempX;                       // width and height of the graph
-            int marginGraphHeight = pingGraphConfig.fontSize();
-            int marginGraphWidth = 10;
+            int width, height;                       // width and height of the graph
+            marginGraphHeight = pingGraphConfig.fontSize();
             if (pingGraphConfig.hideMargin()) {
                 width = overlayWidth;                       // set graph width to whole plugin width
                 height = overlayHeight - marginGraphHeight; // remove the extra height
@@ -66,7 +76,11 @@ public class PingGraphOverlay extends OverlayPanel {
             }
 
             //background rect
-            graphics.setColor(pingGraphConfig.overlayBackgroundColor());
+            if (pingGraphConfig.warningBGToggle() && warning) {
+                graphics.setColor(pingGraphConfig.warningBGColor());
+            } else {
+                graphics.setColor(pingGraphConfig.overlayBackgroundColor());
+            }
             graphics.fillRect(0, 0, overlayWidth, overlayHeight);
 
             //outside border
@@ -79,12 +93,21 @@ public class PingGraphOverlay extends OverlayPanel {
                 int x = pingGraphConfig.hideMargin() ? 0 : marginGraphWidth - 1;
                 graphics.drawRect(x, marginGraphHeight + 1, width, height);
 
+
                 //inside rect
-                graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                if (pingGraphConfig.warningGraphBGToggle() && warning) {
+                    graphics.setColor(pingGraphConfig.warningGraphBGColor());
+                } else {
+                    graphics.setColor(pingGraphConfig.graphBackgroundColor());
+                }
                 graphics.fillRect(x, marginGraphHeight + 1, width, height);
 
                 //Font Settings
-                graphics.setColor(pingGraphConfig.graphTextColor());
+                if (pingGraphConfig.warningFontToggle() && warning){
+                    graphics.setColor(pingGraphConfig.warningFontColor());
+                } else {
+                    graphics.setColor(pingGraphConfig.graphTextColor());
+                }
                 String fontName = pingGraphConfig.fontName();
                 if (pingGraphConfig.fontName().equals("")) {
                     fontName = "Runescape Small";           // Default name if the font name is empty
@@ -92,7 +115,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
                 Font userFont = new Font(fontName, pingGraphConfig.fontStyle().getValue(), pingGraphConfig.fontSize());
 
-                if (userFont.getFamily().equals("Dialog")) { // Cant find the font, change to default
+                if (userFont.getFamily().equals("Dialog")) { // Can't find the font, change to default
                     userFont = new Font("Runescape Small", pingGraphConfig.fontStyle().getValue(), pingGraphConfig.fontSize());
                 }
                 graphics.setFont(userFont);
@@ -156,9 +179,10 @@ public class PingGraphOverlay extends OverlayPanel {
                 maxValue++;
                 minValue--;
             }
-
+            int tempX;
             if (!pingGraphConfig.hideGraph()) {
                 //drawing line graph
+                drawGraph(graphics,dataStart,data,height,width,maxValue,minValue);
                 graphics.setColor(pingGraphConfig.graphLineColor());
                 int oldX, oldY = oldX = -1;
 
@@ -278,5 +302,53 @@ public class PingGraphOverlay extends OverlayPanel {
         }
         return tempLabel;
     }
+
+    private void drawGraph(Graphics2D graphics, int dataStart, LinkedList<Integer> data, int height, int width, int maxValue, int minValue){
+        //drawing line graph
+        int tempX;
+        graphics.setColor(pingGraphConfig.graphLineColor());
+        int oldX, oldY = oldX = -1;
+
+        for (int x = dataStart; x < data.size(); x++) {
+            int y = data.get(x);
+
+            y = y < 0 ? maxValue - 1 : y; // change a "timed out" to spike rather than drop
+
+            //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
+            //scale the x and y values to fit to the plugin
+            if (pingGraphConfig.toggleRange()) { //limit between min ping and max ping
+                y = height - (((height - 2) * (y - minValue)) / (maxValue - minValue) + 1);
+            } else {
+                y = height - (height * y / maxValue);
+            }
+
+            tempX = ((width) * (x - dataStart) / (data.size() - dataStart));
+
+            y += marginGraphHeight;
+
+            if (!pingGraphConfig.hideMargin()) {
+                tempX += marginGraphWidth;
+            }
+
+            if (pingGraphConfig.toggleLineOnly()) {
+                if (!pingGraphConfig.hideMargin())
+                    tempX -= marginGraphWidth;
+                y -= marginGraphHeight;
+            }
+
+            if (y >= 0) {
+                graphics.drawLine(tempX, y, tempX, y);
+            }
+            if (oldX != -1 && y >= 0) {
+                graphics.drawLine(oldX, oldY, tempX, y);
+            }
+
+            oldX = tempX;
+            oldY = y;
+        }
+    }
+
+
+
 
 }

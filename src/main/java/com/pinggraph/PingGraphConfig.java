@@ -4,6 +4,7 @@ import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ConfigSection;
 
 import java.awt.Color;
 
@@ -11,6 +12,22 @@ import lombok.AllArgsConstructor;
 
 @ConfigGroup("pinggraph")
 public interface PingGraphConfig extends Config {
+
+    @ConfigSection(
+            name = "Font Settings",
+            description = "Font Settings",
+            position = 98
+    )
+    String fontSection = "fontSection";
+
+    @ConfigSection(
+            name = "Warning Settings",
+            description = "Change the colors of the plugin when lagging",
+            position = 99
+    )
+    String warnSection = "warnSection";
+
+
     @Alpha
     @ConfigItem(
             position = 0,
@@ -165,7 +182,8 @@ public interface PingGraphConfig extends Config {
             position = 11,
             keyName = "leftLabel",
             name = "Left Label",
-            description = "Default: \"Current Latency\""
+            description = "Default: \"Current Latency\"",
+            section = fontSection
     )
     default Labels leftLabel() {
         return Labels.LATENCY;
@@ -177,7 +195,8 @@ public interface PingGraphConfig extends Config {
             position = 12,
             keyName = "rightLabel",
             name = "Right Label",
-            description = "Default: \"Max Ping Value\""
+            description = "Default: \"Max Ping Value\"",
+            section = fontSection
     )
     default Labels rightLabel() {
         return Labels.PINGMAX;
@@ -189,7 +208,8 @@ public interface PingGraphConfig extends Config {
             position = 13,
             keyName = "fontName",
             name = "Font Name",
-            description = "Default: \"Runescape Small\""
+            description = "Default: \"Runescape Small\"",
+            section = fontSection
     )
     default String fontName() {
         return "Runescape Small";
@@ -201,7 +221,8 @@ public interface PingGraphConfig extends Config {
             position = 14,
             keyName = "fontSize",
             name = "Font Size",
-            description = "Default: 16"
+            description = "Default: 16",
+            section = fontSection
     )
     default int fontSize() {
         return 16;
@@ -213,7 +234,8 @@ public interface PingGraphConfig extends Config {
             position = 15,
             keyName = "fontStyle",
             name = "Font Style",
-            description = "Default: Regular"
+            description = "Default: Regular",
+            section = fontSection
     )
     default FontStyle fontStyle() {
         return FontStyle.REGULAR;
@@ -258,4 +280,118 @@ public interface PingGraphConfig extends Config {
             return name;
         }
     }
+
+
+
+    @ConfigItem(
+            position = 16,
+            keyName = "warnPingVal",
+            name = "Ping Warning Threshold",
+            description = "Warns you when the ping exceeds this threshold",
+            section = warnSection
+    )
+    default int warnPingVal() {
+        return 100;
+    }
+
+
+
+    @ConfigItem(
+            position = 17,
+            keyName = "warnTickVal",
+            name = "Tick Warning Threshold",
+            description = "Warns you when the tick exceeds this threshold",
+            section = warnSection
+    )
+    default int warnTickVal() {
+        return 800;
+    }
+
+
+
+    @ConfigItem(
+            position = 18,
+            keyName = "warningFontToggle",
+            name = "Swap Font Color on Warning",
+            description = "Change the fonts color when the warning value is too high",
+            section = warnSection
+    )
+    default boolean warningFontToggle() {
+        return false;
+    }
+
+
+
+    @ConfigItem(
+            position = 19,
+            keyName = "warningGraphBGToggle",
+            name = "Swap Graph BG Color on Warning",
+            description = "Change the Graph background color when the warning value is too high",
+            section = warnSection
+    )
+    default boolean warningGraphBGToggle() {
+        return false;
+    }
+
+
+    @ConfigItem(
+            position = 20,
+            keyName = "warningBGToggle",
+            name = "Swap Overlay BG Color on Warning",
+            description = "Change the Overlays background color when the warning value is too high",
+            section = warnSection
+    )
+    default boolean warningBGToggle() {
+        return false;
+    }
+
+    @ConfigItem(
+            position = 21,
+            keyName = "warnMaxToggle",
+            name = "Persisting Warning",
+            description = "The warning will persist until the all displayed values are below the warning values",
+            section = warnSection
+    )
+    default boolean warnMaxToggle() {
+        return false;
+    }
+
+
+    @Alpha
+    @ConfigItem(
+            position = 22,
+            keyName = "warningBGColor",
+            name = "BG Warning Color",
+            description = "The color the warnings will change to",
+            section = warnSection
+    )
+    default Color warningBGColor() {
+        return new Color(255, 30, 30, 64);
+    }
+
+    @Alpha
+    @ConfigItem(
+            position = 23,
+            keyName = "warningGraphBGColor",
+            name = "Graph BG Warning Color",
+            description = "The color the warnings will change to",
+            section = warnSection
+    )
+    default Color warningGraphBGColor() {
+        return new Color(255, 30, 30, 64);
+    }
+
+
+    @Alpha
+    @ConfigItem(
+            position = 24,
+            keyName = "warningFontColor",
+            name = "Text Warning Color",
+            description = "The color Text the warnings will change to",
+            section = warnSection
+    )
+    default Color warningFontColor() {
+        return new Color(255, 30, 30, 255);
+    }
+
 }
