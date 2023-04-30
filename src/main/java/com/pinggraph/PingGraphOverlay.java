@@ -38,10 +38,12 @@ public class PingGraphOverlay extends OverlayPanel {
             int tempPing  = pingGraphPlugin.getCurrentPing();
             int tempTick  = pingGraphPlugin.getCurrentTick();
             if(pingGraphConfig.warnMaxToggle()) {
+                tempTick  = pingGraphPlugin.getMaxTick();
                 tempPing = pingGraphPlugin.getMaxPing();
-                tempTick  = pingGraphPlugin.getCurrentTick();
             }
+
             boolean warning = (tempPing > pingGraphConfig.warnPingVal() || tempTick > pingGraphConfig.warnTickVal());
+            warning = warning || (pingGraphPlugin.getCurrentPing() < 0); //warn if ping timed out
 
             if (pingGraphConfig.toggleBehind()) {
                 setLayer(OverlayLayer.ABOVE_SCENE);

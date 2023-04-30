@@ -22,7 +22,7 @@ public interface PingGraphConfig extends Config {
 
     @ConfigSection(
             name = "Warning Settings",
-            description = "Change the colors of the plugin when lagging",
+            description = "Change the colors of the overlay when lagging",
             position = 99
     )
     String warnSection = "warnSection";
@@ -286,7 +286,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 16,
             keyName = "warnPingVal",
-            name = "Ping Warning Threshold",
+            name = "Ping Threshold (ms)",
             description = "Warns you when the ping exceeds this threshold",
             section = warnSection
     )
@@ -299,7 +299,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 17,
             keyName = "warnTickVal",
-            name = "Tick Warning Threshold",
+            name = "Tick Threshold (ms)",
             description = "Warns you when the tick exceeds this threshold",
             section = warnSection
     )
@@ -334,6 +334,7 @@ public interface PingGraphConfig extends Config {
     }
 
 
+
     @ConfigItem(
             position = 20,
             keyName = "warningBGToggle",
@@ -344,6 +345,8 @@ public interface PingGraphConfig extends Config {
     default boolean warningBGToggle() {
         return false;
     }
+
+
 
     @ConfigItem(
             position = 21,
@@ -357,24 +360,27 @@ public interface PingGraphConfig extends Config {
     }
 
 
+
     @Alpha
     @ConfigItem(
             position = 22,
             keyName = "warningBGColor",
             name = "BG Warning Color",
-            description = "The color the warnings will change to",
+            description = "The color the Graph background color will change to while exceeding the threshold",
             section = warnSection
     )
     default Color warningBGColor() {
         return new Color(255, 30, 30, 64);
     }
 
+
+
     @Alpha
     @ConfigItem(
             position = 23,
             keyName = "warningGraphBGColor",
             name = "Graph BG Warning Color",
-            description = "The color the warnings will change to",
+            description = "The color the Graph Background will change to while exceeding the threshold",
             section = warnSection
     )
     default Color warningGraphBGColor() {
@@ -382,12 +388,13 @@ public interface PingGraphConfig extends Config {
     }
 
 
+
     @Alpha
     @ConfigItem(
             position = 24,
             keyName = "warningFontColor",
             name = "Text Warning Color",
-            description = "The color Text the warnings will change to",
+            description = "The color text will change to while exceeding the threshold",
             section = warnSection
     )
     default Color warningFontColor() {
