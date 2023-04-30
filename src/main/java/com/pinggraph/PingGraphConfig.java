@@ -366,7 +366,7 @@ public interface PingGraphConfig extends Config {
             position = 22,
             keyName = "warningBGColor",
             name = "BG Warning Color",
-            description = "The color the Graph background color will change to while exceeding the threshold",
+            description = "The color the Overlays background will change to while exceeding the threshold",
             section = warnSection
     )
     default Color warningBGColor() {

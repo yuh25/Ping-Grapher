@@ -56,7 +56,7 @@ public class PingGraphPlugin extends Plugin {
     @Inject
     private OverlayManager overlayManager;
     @Inject
-    private PingGraphOverlay pingGrpahOverlay;
+    private PingGraphOverlay pingGraphOverlay;
     private ScheduledFuture<?> currPingFuture;
     @Getter
     private volatile int currentPing = 1;
@@ -93,7 +93,7 @@ public class PingGraphPlugin extends Plugin {
         });
 
         log.info("Ping Graph started!");
-        overlayManager.add(pingGrpahOverlay);
+        overlayManager.add(pingGraphOverlay);
         currPingFuture = pingExecutorService.scheduleWithFixedDelay(this::pingCurrentWorld, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
@@ -101,7 +101,7 @@ public class PingGraphPlugin extends Plugin {
     protected void shutDown() throws Exception {
         currPingFuture.cancel(true);
         currPingFuture = null;
-        overlayManager.remove(pingGrpahOverlay);
+        overlayManager.remove(pingGraphOverlay);
         write(pingLock, () -> {
             pingList.clear();
             return null;
