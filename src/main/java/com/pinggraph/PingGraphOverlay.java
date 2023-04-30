@@ -183,14 +183,13 @@ public class PingGraphOverlay extends OverlayPanel {
             }
             int tempX;
             if (!pingGraphConfig.hideGraph()) {
-                //drawing line graph
-                drawGraph(graphics,dataStart,data,height,width,maxValue,minValue);
-                graphics.setColor(pingGraphConfig.graphLineColor());
-                int oldX, oldY = oldX = -1;
-
                 Lock l = lock.readLock();
                 l.lock();
                 try {
+                    //drawing line graph
+                    drawGraph(graphics,dataStart,data,height,width,maxValue,minValue);
+                    graphics.setColor(pingGraphConfig.graphLineColor());
+                    int oldX, oldY = oldX = -1;
                     for (int x = dataStart; x < data.size(); x++) {
                         int y = data.get(x);
 
