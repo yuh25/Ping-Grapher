@@ -181,53 +181,12 @@ public class PingGraphOverlay extends OverlayPanel {
                 maxValue++;
                 minValue--;
             }
-            int tempX;
             if (!pingGraphConfig.hideGraph()) {
-                //drawing line graph
-                drawGraph(graphics,dataStart,data,height,width,maxValue,minValue);
-                graphics.setColor(pingGraphConfig.graphLineColor());
-                int oldX, oldY = oldX = -1;
-
                 Lock l = lock.readLock();
                 l.lock();
                 try {
-                    for (int x = dataStart; x < data.size(); x++) {
-                        int y = data.get(x);
-
-                        y = y < 0 ? maxValue - 1 : y; // change a "timed out" to spike rather than drop
-
-                        //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
-                        //scale the x and y values to fit to the plugin
-                        if (pingGraphConfig.toggleRange()) { //limit between min ping and max ping
-                            y = height - (((height - 2) * (y - minValue)) / (maxValue - minValue) + 1);
-                        } else {
-                            y = height - (height * y / maxValue);
-                        }
-
-                        tempX = ((width) * (x - dataStart) / (data.size() - dataStart));
-
-                        y += marginGraphHeight;
-
-                        if (!pingGraphConfig.hideMargin()) {
-                            tempX += marginGraphWidth;
-                        }
-
-                        if (pingGraphConfig.toggleLineOnly()) {
-                            if (!pingGraphConfig.hideMargin())
-                                tempX -= marginGraphWidth;
-                            y -= marginGraphHeight;
-                        }
-
-                        if (y >= 0) {
-                            graphics.drawLine(tempX, y, tempX, y);
-                        }
-                        if (oldX != -1 && y >= 0) {
-                            graphics.drawLine(oldX, oldY, tempX, y);
-                        }
-
-                        oldX = tempX;
-                        oldY = y;
-                    }
+                    //drawing line graph
+                    drawGraph(graphics, dataStart, data, height, width, maxValue, minValue);
                 } finally {
                     l.unlock();
                 }
