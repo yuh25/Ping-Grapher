@@ -75,6 +75,9 @@ public class PingGraphPlugin extends Plugin {
     private long lastTickTime;
     @Setter
     private volatile int graphStart;
+    @Getter
+    private int noResponseCount;
+
     @Inject
     private ScheduledExecutorService pingExecutorService;
 
@@ -159,11 +162,15 @@ public class PingGraphPlugin extends Plugin {
 
         currentPing = Ping.ping(currentWorld);
 
-        write(pingLock, () -> {
-            pingList.add(currentPing);
-            return pingList.remove(); // remove the first ping
-        });
-
+        if(currentPing < 0) {
+            noResponseCount++;
+        } else {
+            noResponseCount = 0;
+            write(pingLock, () -> {
+                pingList.add(currentPing);
+                return pingList.remove(); // remove the first ping
+            });
+        }
         if (!config.graphTicks()) {
             int[] temp = read(pingLock, () -> getMaxMinFromList(pingList, graphStart));
             maxPing = temp[0];

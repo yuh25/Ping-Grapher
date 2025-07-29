@@ -145,7 +145,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 9,
             keyName = "hideMargin",
-            name = "Hide Bottom and Side Margins",
+            name = "Remove Margins",
             description = "Removes the margins that surround the graph"
     )
     default boolean hideMargin() {
@@ -181,7 +181,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 11,
             keyName = "leftLabel",
-            name = "Left Label",
+            name = "Top Left Label",
             description = "Default: \"Current Latency\"",
             section = fontSection
     )
@@ -194,7 +194,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 12,
             keyName = "rightLabel",
-            name = "Right Label",
+            name = "Top Right Label",
             description = "Default: \"Max Ping Value\"",
             section = fontSection
     )
@@ -202,10 +202,34 @@ public interface PingGraphConfig extends Config {
         return Labels.PINGMAX;
     }
 
+    @ConfigItem(
+            position = 13,
+            keyName = "bottomLeftLabel",
+            name = "Bottom Left Label",
+            description = "Default: \"Blank\"",
+            section = fontSection
+    )
+    default Labels bottomLeftLabel() {
+        return Labels.NONE;
+    }
+
 
 
     @ConfigItem(
-            position = 13,
+            position = 14,
+            keyName = "bottomRightLabel",
+            name = "Bottom Right Label",
+            description = "Default: \"Blank\"",
+            section = fontSection
+    )
+    default Labels bottomRightLabel() {
+        return Labels.NONE;
+    }
+
+
+
+    @ConfigItem(
+            position = 15,
             keyName = "fontName",
             name = "Font Name",
             description = "Default: \"Runescape Small\"",
@@ -218,7 +242,7 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
-            position = 14,
+            position = 16,
             keyName = "fontSize",
             name = "Font Size",
             description = "Default: 16",
@@ -231,7 +255,7 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
-            position = 15,
+            position = 17,
             keyName = "fontStyle",
             name = "Font Style",
             description = "Default: Regular",
@@ -269,7 +293,6 @@ public interface PingGraphConfig extends Config {
         PINGMIN("Min Ping Value"),
         TICK("Current tick"),
         TICKMAX("Max Tick Value"),
-        TICKMIN("Min Tick Value"),
         NONE("Blank");
 
 
