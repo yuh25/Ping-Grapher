@@ -78,6 +78,8 @@ public class PingGraphPlugin extends Plugin {
     @Getter
     private int noResponseCount;
 
+    private int lastPing = 1;
+
     @Inject
     private ScheduledExecutorService pingExecutorService;
 
@@ -160,10 +162,12 @@ public class PingGraphPlugin extends Plugin {
         final World currentWorld = worldResult.findWorld(client.getWorld());
         if (currentWorld == null) return;
 
+        lastPing = currentPing;
         currentPing = Ping.ping(currentWorld);
 
         if(currentPing < 0) {
             noResponseCount++;
+            currentPing = lastPing;
         } else {
             noResponseCount = 0;
             write(pingLock, () -> {
