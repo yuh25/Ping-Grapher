@@ -80,6 +80,8 @@ public class PingGraphPlugin extends Plugin {
 
     private int lastPing = 1;
 
+    private boolean resetGraphToggle = false;
+
     @Inject
     private ScheduledExecutorService pingExecutorService;
 
@@ -98,6 +100,7 @@ public class PingGraphPlugin extends Plugin {
         });
 
         log.info("Ping Graph started!");
+        resetGraphToggle = config.enablePingSpikes();
         overlayManager.add(pingGraphOverlay);
         currPingFuture = pingExecutorService.scheduleWithFixedDelay(this::pingCurrentWorld, 1000, 1000, TimeUnit.MILLISECONDS);
     }
@@ -152,6 +155,15 @@ public class PingGraphPlugin extends Plugin {
         temp = read(pingLock, () -> getMaxMinFromList(pingList, graphStart));
         maxPing = temp[0];
         minPing = temp[1];
+
+        if(config.enablePingSpikes() != resetGraphToggle){
+            write(pingLock, () -> {
+                pingList.clear();
+                for (int i = 0; i < numCells; i++) pingList.add(1);
+                return null;
+            });
+            resetGraphToggle = !resetGraphToggle;
+        }
     }
 
     // Code used from runelites worldhopper
@@ -167,6 +179,12 @@ public class PingGraphPlugin extends Plugin {
 
         if(currentPing < 0) {
             noResponseCount++;
+            if(config.enablePingSpikes()){
+                write(pingLock, () -> {
+                    pingList.add(currentPing);
+                    return pingList.remove();
+                });
+            }
             currentPing = lastPing;
         } else {
             noResponseCount = 0;
@@ -175,6 +193,7 @@ public class PingGraphPlugin extends Plugin {
                 return pingList.remove(); // remove the first ping
             });
         }
+
         if (!config.graphTicks()) {
             int[] temp = read(pingLock, () -> getMaxMinFromList(pingList, graphStart));
             maxPing = temp[0];

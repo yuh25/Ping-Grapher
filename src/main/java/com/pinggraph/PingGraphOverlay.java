@@ -270,11 +270,8 @@ public class PingGraphOverlay extends OverlayPanel {
                 String labelType = (setting == PingGraphConfig.Labels.LATENCY) ? "Latency:" : "Ping:";
                 tempLabel = labelType + pingGraphPlugin.getCurrentPing() + "ms";
 
-                if (pingGraphPlugin.getCurrentPing() < 0) {
-                    tempLabel = "Error"; //Should not happen
-                }
-                if (pingGraphPlugin.getNoResponseCount() >= 3) {
-                    tempLabel = labelType + "-";
+                if (pingGraphPlugin.getNoResponseCount() >= pingGraphConfig.noResponseLimit()) {
+                    tempLabel = labelType + pingGraphConfig.noResponseMsg();
                 }
             break;
             case PINGMAX:
@@ -284,9 +281,15 @@ public class PingGraphOverlay extends OverlayPanel {
                 tempLabel = "Min(P):" + pingGraphPlugin.getMinPing() + "ms";
                 break;
             case TICK:
-                tempLabel = "Tick: +/-" + (Math.abs(pingGraphPlugin.getCurrentTick() - 600)) + "ms";
+                tempLabel = "Tick:" + pingGraphPlugin.getCurrentTick() + "ms";
                 break;
             case TICKMAX:
+                tempLabel = "Max(T):" + pingGraphPlugin.getMaxTick() + "ms";
+                break;
+            case TICKDEV:
+                tempLabel = "Tick: +/-" + (Math.abs(pingGraphPlugin.getCurrentTick() - 600)) + "ms";
+                break;
+            case TICKDEVMAX:
                 tempLabel = "Max(T): +/-" + (Math.abs(pingGraphPlugin.getMaxTick() - 600)) + "ms";
                 break;
             case NONE:
@@ -304,7 +307,7 @@ public class PingGraphOverlay extends OverlayPanel {
 
         for (int x = dataStart; x < data.size(); x++) {
             int y = data.get(x);
-            y = Math.max(y, 0);
+            y = y < 0 ? maxValue : y; // change a "timed out" to spike rather than drop
 
             //((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
             //scale the x and y values to fit to the plugin
@@ -320,9 +323,6 @@ public class PingGraphOverlay extends OverlayPanel {
                     tempX -= marginGraphWidth;
             }
 
-           // if (y >= 0) {
-            //    graphics.drawLine(tempX, y, tempX, y);
-            //}
             if (oldX != -1 && y >= 0) {
                 graphics.drawLine(oldX, oldY, tempX, y);
             }

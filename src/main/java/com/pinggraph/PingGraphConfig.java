@@ -293,6 +293,8 @@ public interface PingGraphConfig extends Config {
         PINGMIN("Min Ping Value"),
         TICK("Current tick"),
         TICKMAX("Max Tick Value"),
+        TICKDEV("Tick Deviation"),
+        TICKDEVMAX("Max Tick Deviation"),
         NONE("Blank");
 
 
@@ -424,4 +426,41 @@ public interface PingGraphConfig extends Config {
         return new Color(255, 30, 30, 255);
     }
 
+
+
+    @ConfigItem(
+            position = 25,
+            keyName = "enablePingSpikes",
+            name = "Graph Ping Time Outs",
+            description = "Re-enable Spikes on Graph when getting no response",
+            warning = "Ping spikes may not accurately reflect your network connection to the world.\n" +
+                      "This will reset the current Ping graph!"
+    )
+    default boolean enablePingSpikes() {
+        return false;
+    }
+
+
+
+    @ConfigItem(
+            position = 26,
+            keyName = "noResponseLimit",
+            name = "Time Out Limit",
+            description = "Number of times getting \"Timed Out\" before changing ping label."
+    )
+    default int noResponseLimit() {
+        return 3;
+    }
+
+
+
+    @ConfigItem(
+            position = 27,
+            keyName = "noResponseMsg",
+            name = "Timed Out Label",
+            description = "Default: \"-\""
+    )
+    default String noResponseMsg() {
+        return "-";
+    }
 }
