@@ -1,10 +1,6 @@
 package com.pinggraph;
 
-import net.runelite.client.config.Alpha;
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
-import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.*;
 
 import java.awt.Color;
 
@@ -291,7 +287,7 @@ public interface PingGraphConfig extends Config {
         LATENCY("Current Latency"),
         PINGMAX("Max Ping Value"),
         PINGMIN("Min Ping Value"),
-        TICK("Current tick"),
+        TICK("Current Tick"),
         TICKMAX("Max Tick Value"),
         TICKDEV("Tick Deviation"),
         TICKDEVMAX("Max Tick Deviation"),
@@ -448,6 +444,7 @@ public interface PingGraphConfig extends Config {
             name = "Time Out Limit",
             description = "Number of times getting \"Timed Out\" before changing ping label."
     )
+    @Range(min = 1, max = 100)
     default int noResponseLimit() {
         return 3;
     }
@@ -464,11 +461,13 @@ public interface PingGraphConfig extends Config {
         return "-";
     }
 
+
+
     @ConfigItem(
             position = 28,
             keyName = "simpleLabels",
             name = "Simple Labels",
-            description = "Removes extra text in labels, e.g. Ping: and Tick:"
+            description = "Removes extra text in labels, e.g. Ping: and Tick: +/-"
     )
     default boolean simpleLabels() {
         return false;

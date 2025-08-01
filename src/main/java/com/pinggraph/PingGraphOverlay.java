@@ -298,7 +298,7 @@ public class PingGraphOverlay extends OverlayPanel {
                 break;
             case TICKMAX:
                 if(!pingGraphConfig.simpleLabels())
-                    tempLabel = "Max(T)";
+                    tempLabel = "Max(T):";
                 tempLabel += pingGraphPlugin.getMaxTick() + "ms";
                 break;
             case TICKDEV:
