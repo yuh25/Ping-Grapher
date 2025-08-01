@@ -463,4 +463,15 @@ public interface PingGraphConfig extends Config {
     default String noResponseMsg() {
         return "-";
     }
+
+    @ConfigItem(
+            position = 28,
+            keyName = "simpleLabels",
+            name = "Simple Labels",
+            description = "Removes extra text in labels, e.g. Ping: and Tick:"
+    )
+    default boolean simpleLabels() {
+        return false;
+    }
+
 }

@@ -263,34 +263,53 @@ public class PingGraphOverlay extends OverlayPanel {
 
     // returns a string based on user settings
     private String labelText(PingGraphConfig.Labels setting) {
-        String tempLabel = "Label Error";
+        String tempLabel = "";
         switch (setting) {
             case LATENCY:
             case PING:
                 String labelType = (setting == PingGraphConfig.Labels.LATENCY) ? "Latency:" : "Ping:";
-                tempLabel = labelType + pingGraphPlugin.getCurrentPing() + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = labelType;
+
+                tempLabel += pingGraphPlugin.getCurrentPing() + "ms";
 
                 if (pingGraphPlugin.getNoResponseCount() >= pingGraphConfig.noResponseLimit()) {
-                    tempLabel = labelType + pingGraphConfig.noResponseMsg();
+                    tempLabel = "";
+                    if(!pingGraphConfig.simpleLabels())
+                        tempLabel = labelType;
+                    tempLabel += pingGraphConfig.noResponseMsg();
                 }
             break;
             case PINGMAX:
-                tempLabel = "Max(P):" + pingGraphPlugin.getMaxPing() + "ms";
+                if(!pingGraphConfig.simpleLabels()) {
+                    tempLabel = "Max(P):";
+                }
+                tempLabel += pingGraphPlugin.getMaxPing() + "ms";
                 break;
             case PINGMIN:
-                tempLabel = "Min(P):" + pingGraphPlugin.getMinPing() + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = "Min(P):";
+                tempLabel +=  pingGraphPlugin.getMinPing() + "ms";
                 break;
             case TICK:
-                tempLabel = "Tick:" + pingGraphPlugin.getCurrentTick() + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = "Tick:";
+                tempLabel += pingGraphPlugin.getCurrentTick() + "ms";
                 break;
             case TICKMAX:
-                tempLabel = "Max(T):" + pingGraphPlugin.getMaxTick() + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = "Max(T)";
+                tempLabel += pingGraphPlugin.getMaxTick() + "ms";
                 break;
             case TICKDEV:
-                tempLabel = "Tick: +/-" + (Math.abs(pingGraphPlugin.getCurrentTick() - 600)) + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = "Tick: +/-";
+                tempLabel += (Math.abs(pingGraphPlugin.getCurrentTick() - 600)) + "ms";
                 break;
             case TICKDEVMAX:
-                tempLabel = "Max(T): +/-" + (Math.abs(pingGraphPlugin.getMaxTick() - 600)) + "ms";
+                if(!pingGraphConfig.simpleLabels())
+                    tempLabel = "Max(T): +/-";
+                tempLabel += (Math.abs(pingGraphPlugin.getMaxTick() - 600)) + "ms";
                 break;
             case NONE:
                 tempLabel = "";
