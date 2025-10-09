@@ -125,10 +125,11 @@ public class PingGraphOverlay extends OverlayPanel {
                 graphics.fillRect(xOrigin, yOrigin, graphWidth, graphHeight);
 
                 //Font Settings
+                Color textColor;
                 if (pingGraphConfig.warningFontToggle() && warning){
-                    graphics.setColor(pingGraphConfig.warningFontColor());
+                    textColor = pingGraphConfig.warningFontColor();
                 } else {
-                    graphics.setColor(pingGraphConfig.graphTextColor());
+                    textColor = pingGraphConfig.graphTextColor();
                 }
                 String fontName = pingGraphConfig.fontName();
                 if (pingGraphConfig.fontName().equals("")) {
@@ -140,26 +141,26 @@ public class PingGraphOverlay extends OverlayPanel {
                 if (userFont.getFamily().equals("Dialog")) { // Can't find the font, change to default
                     userFont = new Font("Runescape Small", pingGraphConfig.fontStyle().getValue(), pingGraphConfig.fontSize());
                 }
+                int textMargin = pingGraphConfig.textMargin();
                 graphics.setFont(userFont);
 
-                String rightLabel = labelText(pingGraphConfig.rightLabel());
 
                 //Right label
+                String rightLabel = labelText(pingGraphConfig.rightLabel());
                 int strWidth = graphics.getFontMetrics().stringWidth(rightLabel);
-                graphics.drawString(rightLabel, overlayWidth - strWidth - marginGraphWidth, marginGraphHeight - 1);
-
+                drawlabel(graphics, rightLabel, overlayWidth - strWidth - textMargin, marginGraphHeight - 1, textColor);
                 //Left label
                 String leftLabel = labelText(pingGraphConfig.leftLabel());
-                graphics.drawString(leftLabel, marginGraphWidth, marginGraphHeight - 1);
+                drawlabel(graphics, leftLabel, textMargin, marginGraphHeight - 1, textColor);
 
                 //Right label
                 rightLabel = labelText(pingGraphConfig.bottomRightLabel());
                 strWidth = graphics.getFontMetrics().stringWidth(rightLabel);
-                graphics.drawString(rightLabel, overlayWidth - strWidth - marginGraphWidth, overlayHeight);
+                drawlabel(graphics, rightLabel, overlayWidth - strWidth - textMargin, overlayHeight, textColor);
 
                 //Left label
                 leftLabel = labelText(pingGraphConfig.bottomLeftLabel());
-                graphics.drawString(leftLabel, marginGraphWidth, overlayHeight);
+                drawlabel(graphics, leftLabel, textMargin, overlayHeight, textColor);
 
 
             } else {
@@ -311,6 +312,9 @@ public class PingGraphOverlay extends OverlayPanel {
                     tempLabel = "Max(T): +/-";
                 tempLabel += (Math.abs(pingGraphPlugin.getMaxTick() - 600)) + "ms";
                 break;
+            case FPS:
+                tempLabel += client.getFPS() + " FPS";
+                break;
             case NONE:
                 tempLabel = "";
                 break;
@@ -351,6 +355,16 @@ public class PingGraphOverlay extends OverlayPanel {
         }
     }
 
+
+    private void drawlabel(Graphics2D graphics, String text,int x, int y, Color color){
+        //draw text shadow
+        graphics.setColor(Color.BLACK);
+        graphics.drawString(text, x + 1, y  + 1);
+
+        //draw actual text
+        graphics.setColor(color);
+        graphics.drawString(text, x, y);
+    }
 
 
 

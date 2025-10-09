@@ -151,6 +151,19 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
+            position = 9,
+            keyName = "textMargin",
+            name = "Text Margins",
+            description = "Spacing between the text and the sides of the overlay"
+    )
+    @Range(min = -1000, max = 1000)
+    default int textMargin() {
+        return 10;
+    }
+
+
+
+    @ConfigItem(
             position = 10,
             keyName = "graphTicks",
             name = "Graph Game Ticks",
@@ -197,6 +210,8 @@ public interface PingGraphConfig extends Config {
     default Labels rightLabel() {
         return Labels.PINGMAX;
     }
+
+
 
     @ConfigItem(
             position = 13,
@@ -291,6 +306,7 @@ public interface PingGraphConfig extends Config {
         TICKMAX("Max Tick Value"),
         TICKDEV("Tick Deviation"),
         TICKDEVMAX("Max Tick Deviation"),
+        FPS("FPS"),
         NONE("Blank");
 
 
@@ -333,7 +349,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 18,
             keyName = "warningFontToggle",
-            name = "Swap Font Color on Warning",
+            name = "Swap Font Color",
             description = "Change the fonts color when the warning value is too high",
             section = warnSection
     )
@@ -346,7 +362,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 19,
             keyName = "warningGraphBGToggle",
-            name = "Swap Graph BG Color on Warning",
+            name = "Swap Graph BG Color",
             description = "Change the Graph background color when the warning value is too high",
             section = warnSection
     )
@@ -359,7 +375,7 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 20,
             keyName = "warningBGToggle",
-            name = "Swap Overlay BG Color on Warning",
+            name = "Swap Overlay BG Color",
             description = "Change the Overlays background color when the warning value is too high",
             section = warnSection
     )
