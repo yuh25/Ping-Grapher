@@ -54,11 +54,11 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 2,
             keyName = "OverlayBackgroundColor",
-            name = "Overlay Background Color",
+            name = "Overlay BG Color",
             description = "The background color of the overlay"
     )
     default Color overlayBackgroundColor() {
-        return new Color(0, 0, 0, 100);
+        return new Color(17, 17, 17, 100);
     }
 
 
@@ -71,7 +71,7 @@ public interface PingGraphConfig extends Config {
             description = "The border color of the overlay"
     )
     default Color overlayBorderColor() {
-        return new Color(0, 0, 0, 70);
+        return new Color(17, 17, 17, 70);
     }
 
 
@@ -80,11 +80,11 @@ public interface PingGraphConfig extends Config {
     @ConfigItem(
             position = 4,
             keyName = "graphBackgroundColor",
-            name = "Graph Background Color",
+            name = "Graph BG Color",
             description = "The background color of the graph"
     )
     default Color graphBackgroundColor() {
-        return new Color(0, 0, 0, 120);
+        return new Color(17, 17, 17, 120);
     }
 
 
@@ -97,7 +97,7 @@ public interface PingGraphConfig extends Config {
             description = "The border color of the graph"
     )
     default Color graphBorderColor() {
-        return new Color(0, 0, 0, 70);
+        return new Color(17, 17, 17, 70);
     }
 
 
@@ -321,7 +321,7 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
-            position = 16,
+            position = 1,
             keyName = "warnPingVal",
             name = "Ping Threshold (ms)",
             description = "Warns you when the ping exceeds this threshold",
@@ -334,7 +334,7 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
-            position = 17,
+            position = 2,
             keyName = "warnTickVal",
             name = "Tick Threshold (ms)",
             description = "Warns you when the tick exceeds this threshold",
@@ -347,46 +347,7 @@ public interface PingGraphConfig extends Config {
 
 
     @ConfigItem(
-            position = 18,
-            keyName = "warningFontToggle",
-            name = "Swap Font Color",
-            description = "Change the fonts color when the warning value is too high",
-            section = warnSection
-    )
-    default boolean warningFontToggle() {
-        return false;
-    }
-
-
-
-    @ConfigItem(
-            position = 19,
-            keyName = "warningGraphBGToggle",
-            name = "Swap Graph BG Color",
-            description = "Change the Graph background color when the warning value is too high",
-            section = warnSection
-    )
-    default boolean warningGraphBGToggle() {
-        return false;
-    }
-
-
-
-    @ConfigItem(
-            position = 20,
-            keyName = "warningBGToggle",
-            name = "Swap Overlay BG Color",
-            description = "Change the Overlays background color when the warning value is too high",
-            section = warnSection
-    )
-    default boolean warningBGToggle() {
-        return false;
-    }
-
-
-
-    @ConfigItem(
-            position = 21,
+            position = 3,
             keyName = "warnMaxToggle",
             name = "Persisting Warning",
             description = "The warning will persist until the all displayed values are below the warning values",
@@ -398,25 +359,145 @@ public interface PingGraphConfig extends Config {
 
 
 
-    @Alpha
     @ConfigItem(
-            position = 22,
-            keyName = "warningBGColor",
-            name = "BG Warning Color",
-            description = "The color the Overlays background will change to while exceeding the threshold",
+            position = 4,
+            keyName = "warningOverlayToggle",
+            name = "Hide Overlay Unless Warning",
+            description = "Only shows the overlay if there is a warning",
             section = warnSection
     )
-    default Color warningBGColor() {
-        return new Color(255, 30, 30, 64);
+    default boolean warningHideOverlay() {
+        return false;
+    }
+
+
+
+    @ConfigItem(
+            position = 5,
+            keyName = "warningFontToggle",
+            name = "Swap Text Color",
+            description = "Change the text color when the Ping/Tick value is too high",
+            section = warnSection
+    )
+    default boolean warningFontToggle() {
+        return false;
     }
 
 
 
     @Alpha
     @ConfigItem(
-            position = 23,
+            position = 6,
+            keyName = "warningFontColor",
+            name = "Text Warn Color",
+            description = "The color text will change to while exceeding the threshold",
+            section = warnSection
+    )
+    default Color warningFontColor() {
+            return new Color(255, 17, 17, 255);
+    }
+
+
+
+    @ConfigItem(
+            position = 7,
+            keyName = "warningLineToggle",
+            name = "Swap Graph Line Color",
+            description = "Change the Graph Line Color when the Ping/Tick value is too high",
+            section = warnSection
+    )
+    default boolean warningLineToggle() {
+        return false;
+    }
+
+
+
+    @Alpha
+    @ConfigItem(
+            position = 8,
+            keyName = "warningLineColor",
+            name = "Graph Line Warn Color",
+            description = "The color the Graph Line will change to while exceeding the threshold",
+            section = warnSection
+    )
+    default Color warningLineColor() {
+        return new Color(255, 17, 17, 255);
+    }
+
+
+
+    @ConfigItem(
+            position = 9,
+            keyName = "warningBGToggle",
+            name = "Swap Overlay BG Color",
+            description = "Change the Overlays background color when the Ping/Tick value is too high",
+            section = warnSection
+    )
+    default boolean warningOverlayBGToggle() {
+        return false;
+    }
+
+
+
+    @Alpha
+    @ConfigItem(
+            position = 10,
+            keyName = "warningBGColor",
+            name = "Overlay BG Warn Color",
+            description = "The color the Overlays background will change to while exceeding the threshold",
+            section = warnSection
+    )
+    default Color warningOverlayBGColor() {
+        return new Color(255, 30, 30, 64);
+    }
+
+
+
+    @ConfigItem(
+            position = 11,
+            keyName = "warnOverlayBorderToggle",
+            name = "Swap Overlay Border Color",
+            description = "Change the Overlays Border Color when the Ping/Tick value is too high",
+            section = warnSection
+    )
+    default boolean warnOverlayBorderToggle() {
+        return false;
+    }
+
+
+
+    @Alpha
+    @ConfigItem(
+            position = 12,
+            keyName = "warningOverlayBorderColor",
+            name = "Overlay Border Warn Color",
+            description = "The color the Overlays Border will change to while exceeding the threshold",
+            section = warnSection
+    )
+    default Color warnOverlayBorderColor() {
+        return new Color(90, 17, 17, 100);
+    }
+
+
+
+    @ConfigItem(
+            position = 13,
+            keyName = "warningGraphBGToggle",
+            name = "Swap Graph BG Color",
+            description = "Change the Graph background color when the Ping/Tick value is too high",
+            section = warnSection
+    )
+    default boolean warningGraphBGToggle() {
+        return false;
+    }
+
+
+
+    @Alpha
+    @ConfigItem(
+            position = 14,
             keyName = "warningGraphBGColor",
-            name = "Graph BG Warning Color",
+            name = "Graph BG Warn Color",
             description = "The color the Graph Background will change to while exceeding the threshold",
             section = warnSection
     )
@@ -426,16 +507,29 @@ public interface PingGraphConfig extends Config {
 
 
 
-    @Alpha
     @ConfigItem(
-            position = 24,
-            keyName = "warningFontColor",
-            name = "Text Warning Color",
-            description = "The color text will change to while exceeding the threshold",
+            position = 15,
+            keyName = "warningGraphBorderToggle",
+            name = "Swap Graph Border Color",
+            description = "Change the Graph Border Color when the Ping/Tick value is too high",
             section = warnSection
     )
-    default Color warningFontColor() {
-        return new Color(255, 30, 30, 255);
+    default boolean warnGraphBorderToggle() {
+        return false;
+    }
+
+
+
+    @Alpha
+    @ConfigItem(
+            position = 16,
+            keyName = "warnGraphBorderColor",
+            name = "Graph Border Warn Color",
+            description = "The color the Graphs Border will change to while exceeding the threshold",
+            section = warnSection
+    )
+    default Color warnGraphBorderColor() {
+        return new Color(90, 17, 17, 100);
     }
 
 

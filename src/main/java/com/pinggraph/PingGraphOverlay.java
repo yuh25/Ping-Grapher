@@ -40,6 +40,10 @@ public class PingGraphOverlay extends OverlayPanel {
             boolean warning = (tempPing > pingGraphConfig.warnPingVal() || tempTick > pingGraphConfig.warnTickVal());
             warning = warning || (pingGraphPlugin.getCurrentPing() < 0); //warn if ping timed out
 
+            if(!warning && pingGraphConfig.warningHideOverlay()){
+                return new Dimension(0, 0);
+            }
+
             if (pingGraphConfig.toggleBehind()) {
                 setLayer(OverlayLayer.ABOVE_SCENE);
             } else {
@@ -92,20 +96,30 @@ public class PingGraphOverlay extends OverlayPanel {
             }
 
             //background rect
-            if (pingGraphConfig.warningBGToggle() && warning) {
-                graphics.setColor(pingGraphConfig.warningBGColor());
+            if (pingGraphConfig.warningOverlayBGToggle() && warning) {
+                graphics.setColor(pingGraphConfig.warningOverlayBGColor());
             } else {
                 graphics.setColor(pingGraphConfig.overlayBackgroundColor());
             }
             graphics.fillRect(0, 0, overlayWidth, overlayHeight);
 
             //outside border
-            graphics.setColor(pingGraphConfig.overlayBorderColor());
+            if (pingGraphConfig.warnOverlayBorderToggle() && warning) {
+                graphics.setColor(pingGraphConfig.warnOverlayBorderColor());
+            } else {
+                graphics.setColor(pingGraphConfig.overlayBorderColor());
+            }
             graphics.drawRect(0, 0, overlayWidth, overlayHeight);
 
             if (!pingGraphConfig.toggleLineOnly()) {
                 //inside border
                 graphics.setColor(pingGraphConfig.graphBorderColor());
+
+                if (pingGraphConfig.warnGraphBorderToggle() && warning) {
+                    graphics.setColor(pingGraphConfig.warnGraphBorderColor());
+                } else {
+                    graphics.setColor(pingGraphConfig.graphBorderColor());
+                }
 
                 if(pingGraphConfig.hideMargin()){
                     xOrigin = 0;
@@ -211,6 +225,15 @@ public class PingGraphOverlay extends OverlayPanel {
                 }
             }
 
+
+            Color graphColor;
+            if (pingGraphConfig.warningLineToggle() && warning){
+                graphColor = pingGraphConfig.warningLineColor();
+            } else {
+                graphColor = pingGraphConfig.graphLineColor();
+            }
+
+
             if (maxValue == minValue) {
                 maxValue++;
                 minValue--;
@@ -220,7 +243,7 @@ public class PingGraphOverlay extends OverlayPanel {
                 l.lock();
                 try {
                     //drawing line graph
-                    drawGraph(graphics, dataStart, data, xOrigin, yOrigin, graphHeight, graphWidth, maxValue, minValue);
+                    drawGraph(graphics, dataStart, data, xOrigin, yOrigin, graphHeight, graphWidth, maxValue, minValue, graphColor);
                 } finally {
                     l.unlock();
                 }
@@ -322,10 +345,11 @@ public class PingGraphOverlay extends OverlayPanel {
         return tempLabel;
     }
 
-    private void drawGraph(Graphics2D graphics, int dataStart, LinkedList<Integer> data,int xOrigin, int yOrigin, int height, int width, int maxValue, int minValue){
+    private void drawGraph(Graphics2D graphics, int dataStart, LinkedList<Integer> data,int xOrigin, int yOrigin, int height, int width, int maxValue, int minValue, Color lineColor){
         //drawing line graph
         int tempX;
-        graphics.setColor(pingGraphConfig.graphLineColor());
+        graphics.setColor(lineColor);
+
         int oldX, oldY = oldX = -1;
 
         for (int x = dataStart; x < data.size(); x++) {
@@ -356,10 +380,10 @@ public class PingGraphOverlay extends OverlayPanel {
     }
 
 
-    private void drawlabel(Graphics2D graphics, String text,int x, int y, Color color){
+    private void drawlabel(Graphics2D graphics, String text, int x, int y, Color color){
         //draw text shadow
-        graphics.setColor(Color.BLACK);
-        graphics.drawString(text, x + 1, y  + 1);
+        graphics.setColor(new Color(0,0,0,color.getAlpha()));
+        graphics.drawString(text, x + 1, y + 1);
 
         //draw actual text
         graphics.setColor(color);
