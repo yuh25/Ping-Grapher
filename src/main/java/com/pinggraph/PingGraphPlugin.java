@@ -175,7 +175,8 @@ public class PingGraphPlugin extends Plugin {
         if (currentWorld == null) return;
 
         lastPing = currentPing;
-        currentPing = Ping.ping(currentWorld);
+        // Fall back to TCP should ICMP ping fail. Workaround for presumed upstream bug.
+        currentPing = Ping.ping(currentWorld, true);
 
         if(currentPing < 0) {
             noResponseCount++;
