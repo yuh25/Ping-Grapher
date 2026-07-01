@@ -389,7 +389,4 @@ public class PingGraphOverlay extends OverlayPanel {
         graphics.setColor(color);
         graphics.drawString(text, x, y);
     }
-
-
-
 }
