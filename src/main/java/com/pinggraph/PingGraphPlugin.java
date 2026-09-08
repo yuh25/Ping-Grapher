@@ -12,18 +12,17 @@ import net.runelite.client.game.WorldService;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.worldhopper.ping.Ping;
+import net.runelite.client.plugins.worldhopper.ping.TCPInfo;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ExecutorServiceExceptionLogger;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.FileDescriptor;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -40,11 +39,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @PluginDescriptor(
-    name = "Ping Grapher"
+    name = "Ping Grapher",
+    description = "Graphs the ping to the current world",
+    tags = {"ping", "graph", "latency", "tick", "network", "lag", "fps"}
 )
 public class PingGraphPlugin extends Plugin {
-    private static final int TCP_PORT = 43594;
-    private static final int TCP_TIMEOUT_MS = 2000;
 
     private final int numCells = 100;
     @Getter
@@ -85,12 +84,7 @@ public class PingGraphPlugin extends Plugin {
     private volatile int graphStart;
     @Getter
     private int noResponseCount;
-
-    private int lastPing = 1;
-
     private boolean resetGraphToggle = false;
-
-    @Inject
     private ScheduledExecutorService pingExecutorService;
 
     @Override
@@ -107,10 +101,12 @@ public class PingGraphPlugin extends Plugin {
             return null;
         });
 
-        log.info("Ping Graph started!");
         resetGraphToggle = config.enablePingSpikes();
         overlayManager.add(pingGraphOverlay);
+        pingExecutorService = new ExecutorServiceExceptionLogger(Executors.newSingleThreadScheduledExecutor());
         currPingFuture = pingExecutorService.scheduleWithFixedDelay(this::pingCurrentWorld, 1000, 1000, TimeUnit.MILLISECONDS);
+
+        log.info("Ping Graph started!");
     }
 
     @Override
@@ -126,6 +122,10 @@ public class PingGraphPlugin extends Plugin {
             tickTimeList.clear();
             return null;
         });
+
+        pingExecutorService.shutdown();
+        pingExecutorService = null;
+
         log.info("Ping Graph stopped!");
     }
 
@@ -182,12 +182,15 @@ public class PingGraphPlugin extends Plugin {
         final World currentWorld = worldResult.findWorld(client.getWorld());
         if (currentWorld == null) return;
 
-        lastPing = currentPing;
-        // Fall back to TCP should ICMP ping fail. Workaround for presumed upstream bug.
-        // Also handles worlds whose hostname resolves only to an IPv6 address (e.g. Brazil
-        // worlds 692-695), where Ping.ping() returns -1 before attempting TCP because it
-        // calls InetAddress.getByName() and rejects non-Inet4Address results immediately.
-        currentPing = pingWorld(currentWorld);
+        int lastPing = currentPing;
+        currentPing = -1;
+        FileDescriptor fd = this.client.getSocketFD();
+        if (fd != null) {
+            TCPInfo tcpInfo = Ping.getTCPInfo(fd);
+            if (tcpInfo != null) {
+                currentPing = (int) (tcpInfo.getRTT() / 1000L);
+            }
+        }
 
         if(currentPing < 0) {
             noResponseCount++;
@@ -210,79 +213,6 @@ public class PingGraphPlugin extends Plugin {
             int[] temp = read(pingLock, () -> getMaxMinFromList(pingList, graphStart));
             maxPing = temp[0];
             minPing = temp[1];
-        }
-    }
-
-    /**
-     * Ping the given world, falling back gracefully for IPv6-only hosts.
-     *
-     * Ping.ping() resolves a hostname with InetAddress.getByName(), which returns
-     * a single address. If that address is IPv6 it immediately returns -1 — the TCP
-     * fallback never runs. This affects worlds whose DNS only advertises an IPv6
-     * address (e.g. Brazil worlds 692-695 hosted on AWS sa-east-1).
-     *
-     * Fix: resolve all addresses with getAllByName() and prefer the first IPv4 result.
-     * If none exists, fall back to a TCP connect over whatever address is available
-     * (Socket handles IPv6 natively).
-     */
-    private static int pingWorld(World world)
-    {
-        InetAddress[] addresses;
-        try
-        {
-            addresses = InetAddress.getAllByName(world.getAddress());
-        }
-        catch (UnknownHostException ex)
-        {
-            log.debug("Could not resolve host for world {}: {}", world.getId(), ex.getMessage());
-            return -1;
-        }
-
-        // Look for an IPv4 address first — Ping.ping() handles those well.
-        for (InetAddress addr : addresses)
-        {
-            if (addr instanceof Inet4Address)
-            {
-                // Delegate to the existing Ping utility with TCP fallback enabled.
-                // We pass a synthetic world-like object isn't possible, so we just
-                // re-use the original world; the IPv4 address will be the one
-                // InetAddress.getByName returns when an A record exists alongside AAAA.
-                // If this world reliably returns IPv4 we'll hit the fast path in Ping.ping().
-                int result = Ping.ping(world, true);
-                if (result >= 0)
-                {
-                    return result;
-                }
-                // ICMP and TCP both failed on IPv4 — no point trying IPv6.
-                return -1;
-            }
-        }
-
-        // No IPv4 address — IPv6-only world. Use a direct TCP connect.
-        // Socket.connect() supports IPv6 natively on all platforms.
-        log.debug("World {} has no IPv4 address, using TCP ping via IPv6 ({})",
-            world.getId(), addresses[0].getHostAddress());
-        return tcpPing(addresses[0]);
-    }
-
-    /**
-     * Measure a TCP connect time to the game server port.
-     * Used as a fallback when only an IPv6 address is available.
-     */
-    private static int tcpPing(InetAddress address)
-    {
-        try (Socket socket = new Socket())
-        {
-            socket.setSoTimeout(TCP_TIMEOUT_MS);
-            long start = System.nanoTime();
-            socket.connect(new InetSocketAddress(address, TCP_PORT), TCP_TIMEOUT_MS);
-            long end = System.nanoTime();
-            return (int) ((end - start) / 1_000_000L);
-        }
-        catch (Exception ex)
-        {
-            log.debug("TCP ping failed for {}: {}", address.getHostAddress(), ex.getMessage());
-            return -1;
         }
     }
 
